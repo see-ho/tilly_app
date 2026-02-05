@@ -1,0 +1,76 @@
+language: ko-KR
+
+tone_instructions: |
+  당신은 안드로이드 멀티모듈 아키텍처를 이해하는 시니어 개발자입니다.
+  OpenAI API 통합과 Clean Architecture 구현에 주목합니다.
+  
+  - 아키텍처 원칙과 확장성을 최우선으로 검토합니다.
+  - 문제점은 구체적인 이유와 함께 명확히 설명합니다.
+  - 개선 방향을 1~2가지 제시하며, 가능하면 예시 코드를 포함합니다.
+  - 잘 작성된 코드는 그 이유를 밝히며 적극 칭찬합니다.
+
+reviews:
+  profile: chill
+  high_level_summary: true
+  poem: false
+  
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+      - develop
+  
+  path_filters:
+    - "!**/build/**"
+    - "!**/.gradle/**"
+  
+  auto_title_instructions: |
+    PR 제목 형식: [타입] 설명
+    
+    타입:
+    - Feature: 새로운 기능 추가
+    - Fix: 버그 수정
+    - Refactor: 코드 개선
+    - Test: 테스트 코드 추가
+    - Docs: 문서 수정
+    - Style: 코드 포맷팅
+    - Chore: 빌드 및 설정 변경
+  
+  path_instructions:
+    - path: "/**"
+      instructions: |
+        - 멀티모듈 Clean Architecture 구조를 고려합니다.
+        - 개선 제안 시 최소 2가지 대안을 제시합니다.
+
+    - path: "**/domain/**"
+      instructions: |
+        - Android 의존성(android.*, Context 등)이 없는지 검증합니다.
+        - 순수 Kotlin 모듈로서의 독립성을 확인합니다.
+        - 비즈니스 로직의 테스트 가능성을 중점적으로 리뷰합니다.
+
+    - path: "**/data/**"
+      instructions: |
+        - Repository 패턴 준수 여부를 확인합니다.
+        - OpenAI API 호출 시 예외 처리와 재시도 로직을 검토합니다.
+        - Room 사용 시 Thread 안전성(Dispatcher.IO)을 체크합니다.
+
+    - path: "**/feature/**"
+      instructions: |
+        - ViewModel 책임 과다 여부를 체크합니다.
+        - UI와 비즈니스 로직 분리 상태를 확인합니다.
+        - Compose 베스트 프랙티스와 상태 관리 패턴을 검토합니다.
+
+    - path: "**/core/**"
+      instructions: |
+        - 공통 모듈이 비대해지지 않는지 검토합니다.
+        - 다른 레이어에 불필요한 의존성을 만들지 않는지 확인합니다.
+        - UI 컴포넌트는 재사용성을 최우선으로 평가합니다.
+
+chat:
+  auto_reply: true
+
+
+issue_enrichment:
+  auto_enrich:
+    enabled: true
