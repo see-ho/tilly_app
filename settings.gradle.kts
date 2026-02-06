@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -21,3 +22,22 @@ dependencyResolutionManagement {
 
 rootProject.name = "Tilly"
 include(":app")
+
+// Core modules
+include(":core:model")
+include(":core:common")
+include(":core:designsystem")
+include(":core:data")
+include(":core:domain")
+include(":core:network")
+include(":core:database")
+include(":core:datastore")
+include(":core:navigation")
+
+// Feature modules
+include(":feature:home")
+include(":feature:shop")
+include(":feature:tildetails")
+include(":feature:editor")
+include(":feature:report")
+include(":feature:statistics")
