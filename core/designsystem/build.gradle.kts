@@ -1,5 +1,6 @@
 plugins {
     id("tilly.android.library")
+    id("tilly.android.compose")
 }
 
 android {
