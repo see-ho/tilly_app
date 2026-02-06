@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -21,7 +22,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Tilly"
 include(":app")
-includeBuild("build-logic")
 
 // Core modules
 include(":core:model")
