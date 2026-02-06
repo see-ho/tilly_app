@@ -1,4 +1,4 @@
-package com.seeho.tilly.ui.theme
+package com.seeho.tilly.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
