@@ -11,6 +11,9 @@ import org.gradle.kotlin.dsl.getByType
 /**
  * Feature 모듈을 위한 통합 컨벤션 플러그인
  * AndroidLibrary + Compose + Hilt + Serialization 조합
+ * 
+ * api: 외부 모듈(app)에서도 접근 가능해야 하는 의존성
+ * implementation: feature 내부에서만 사용하는 의존성
  */
 class AndroidFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -28,16 +31,14 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
 
             val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
             dependencies {
-                // Serialization (Type-Safe Navigation)
-                "implementation"(libs.findLibrary("kotlinx.serialization.json").get())
+                // API: 외부에 노출 (app 모듈이 Route, Model 등에 접근)
+                "api"(project(":core:navigation"))
+                "api"(project(":core:model"))
                 
-                // Navigation Compose
-                "implementation"(libs.findLibrary("androidx.navigation.compose").get())
-                
-                // Common feature dependencies
-                "implementation"(project(":core:model"))
+                // Implementation: 내부에서만 사용
                 "implementation"(project(":core:designsystem"))
                 "implementation"(project(":core:common"))
+                "implementation"(libs.findLibrary("kotlinx.serialization.json").get())
             }
         }
     }
