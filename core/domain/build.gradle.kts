@@ -1,13 +1,11 @@
 plugins {
-    id("tilly.android.library")
-    id("tilly.android.hilt")
-}
-
-android {
-    namespace = "com.seeho.tilly.core.domain"
+    id("java-library")
+    kotlin("jvm")
 }
 
 dependencies {
+    implementation(libs.javax.inject)
+
     implementation(project(":core:model"))
     implementation(project(":core:common"))
 }
