@@ -1,5 +1,6 @@
+package com.seeho.tilly.buildlogic
+
 import com.android.build.gradle.LibraryExtension
-import com.seeho.tilly.buildlogic.configureKotlinAndroid
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
