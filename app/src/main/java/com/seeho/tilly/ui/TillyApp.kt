@@ -26,6 +26,8 @@ import com.seeho.tilly.feature.editor.navigation.editorScreen
 import com.seeho.tilly.feature.report.navigation.ReportRoute
 import com.seeho.tilly.feature.statistics.navigation.StatisticsRoute
 import com.seeho.tilly.feature.tildetails.navigation.tilDetailScreen
+import com.seeho.tilly.feature.shop.navigation.navigateToShop
+import com.seeho.tilly.feature.editor.navigation.navigateToEditor
 import com.seeho.tilly.navigation.TopLevelDestination
 
 @Composable
@@ -51,10 +53,20 @@ fun TillyApp(
             NavHost(
                 navController = appState.navController,
                 startDestination = Home,
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                popEnterTransition = { EnterTransition.None },
+                popExitTransition = { ExitTransition.None },
             ) {
                 homeScreen(
                     onTilClick = { id ->
                         appState.navController.navigate(com.seeho.tilly.core.navigation.TilDetail(id))
+                    },
+                    onEditorClick = {
+                        appState.navController.navigateToEditor()
+                    },
+                    onShopClick = {
+                        appState.navController.navigateToShop()
                     }
                 )
                 tilDetailScreen()

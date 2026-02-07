@@ -16,8 +16,14 @@ fun NavController.navigateToHome(navOptions: NavOptions? = null) {
 
 fun NavGraphBuilder.homeScreen(
     onTilClick: (Long) -> Unit,
+    onEditorClick: () -> Unit,
+    onShopClick: () -> Unit,
 ) {
     composable<Home> {
-        HomeScreen(onTilClick = onTilClick)
+        HomeScreen(
+            onTilClick = onTilClick,
+            onEditorClick = onEditorClick,
+            onShopClick = onShopClick
+        )
     }
 }
