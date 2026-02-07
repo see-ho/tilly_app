@@ -39,6 +39,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 "implementation"(project(":core:designsystem"))
                 "implementation"(project(":core:common"))
                 "implementation"(libs.findLibrary("kotlinx.serialization.json").get())
+                "implementation"(libs.findLibrary("androidx.hilt.navigation.compose").get())
             }
         }
     }
