@@ -48,7 +48,6 @@ dependencies {
     implementation(project(":feature:report"))
     implementation(project(":feature:statistics"))
     implementation(project(":feature:editor"))
-    implementation(project(":feature:tildetails"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:navigation"))
     
