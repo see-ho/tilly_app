@@ -9,6 +9,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor() : ViewModel() {
 
     fun onTilClick(id: Long) {
-         Log.d("HomeViewModel", "onTilClick: $id")
+        Log.d("HomeViewModel", "onTilClick: $id")
     }
 }
