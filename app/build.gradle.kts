@@ -43,8 +43,11 @@ android {
 
 dependencies {
     implementation(project(":feature:home"))
-    implementation(project(":feature:shop"))
     implementation(project(":feature:tildetails"))
+    implementation(project(":feature:shop"))
+    implementation(project(":feature:report"))
+    implementation(project(":feature:statistics"))
+    implementation(project(":feature:editor"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:navigation"))
     
@@ -59,6 +62,7 @@ dependencies {
     
     implementation(libs.hilt.android)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
     
     testImplementation(libs.junit)
