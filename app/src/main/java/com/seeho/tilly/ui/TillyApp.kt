@@ -17,6 +17,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
+import com.seeho.tilly.core.navigation.TilDetail
 import com.seeho.tilly.feature.home.navigation.Home
 import com.seeho.tilly.feature.home.navigation.homeScreen
 import com.seeho.tilly.feature.report.navigation.reportScreen
@@ -60,7 +61,7 @@ fun TillyApp(
             ) {
                 homeScreen(
                     onTilClick = { id ->
-                        appState.navController.navigate(com.seeho.tilly.core.navigation.TilDetail(id))
+                        appState.navController.navigate(TilDetail(id))
                     },
                     onEditorClick = {
                         appState.navController.navigateToEditor()
