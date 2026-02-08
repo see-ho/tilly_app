@@ -40,211 +40,119 @@ fun TillyTheme(
  */
 
 // ============================================
+// Helper Functions for Color Schemes
+// ============================================
+
+private fun tillyLightColorScheme(
+    primary: Color,
+    onPrimary: Color,
+    primaryContainer: Color,
+    onPrimaryContainer: Color,
+    tertiary: Color,
+    onTertiary: Color,
+    tertiaryContainer: Color,
+    onTertiaryContainer: Color,
+) = lightColorScheme(
+    primary = primary,
+    onPrimary = onPrimary,
+    primaryContainer = primaryContainer,
+    onPrimaryContainer = onPrimaryContainer,
+    secondary = NeoGray200,
+    onSecondary = Color(0xFF030213),
+    secondaryContainer = NeoGray100,
+    onSecondaryContainer = Color(0xFF030213),
+    tertiary = tertiary,
+    onTertiary = onTertiary,
+    tertiaryContainer = tertiaryContainer,
+    onTertiaryContainer = onTertiaryContainer,
+    error = NeoDestructive,
+    onError = Color.White,
+    errorContainer = Color(0xFFFFDAD6),
+    onErrorContainer = Color(0xFF410002),
+    background = Color.White,
+    onBackground = Color(0xFF030213),
+    surface = Color.White,
+    onSurface = Color(0xFF030213),
+    surfaceVariant = NeoGray50,
+    onSurfaceVariant = NeoGray400,
+    outline = Color(0x1A000000),
+    outlineVariant = NeoDarkBorder,
+)
+
+// ============================================
 // Light Color Schemes
 // ============================================
 
 // Tilly Green Light Scheme
-internal val TillyGreenLightScheme = lightColorScheme(
+internal val TillyGreenLightScheme = tillyLightColorScheme(
     primary = NeoTerminalGreen,
     onPrimary = NeoDarkBase,
     primaryContainer = Color(0xFFE0F8F0),
     onPrimaryContainer = Color(0xFF003822),
-
-    secondary = NeoGray200,
-    onSecondary = Color(0xFF030213),
-    secondaryContainer = NeoGray100,
-    onSecondaryContainer = Color(0xFF030213),
-
     tertiary = Color(0xFF9C27B0),
     onTertiary = Color.White,
     tertiaryContainer = Color(0xFFF3E5F5),
     onTertiaryContainer = Color(0xFF4A148C),
-
-    error = NeoDestructive,
-    onError = Color.White,
-    errorContainer = Color(0xFFFFDAD6),
-    onErrorContainer = Color(0xFF410002),
-
-    background = Color.White,
-    onBackground = Color(0xFF030213),
-
-    surface = Color.White,
-    onSurface = Color(0xFF030213),
-    surfaceVariant = NeoGray50,
-    onSurfaceVariant = NeoGray400,
-
-    outline = Color(0x1A000000),
-    outlineVariant = NeoDarkBorder,
 )
 
 // Dracula Light Scheme
-internal val DraculaLightScheme = lightColorScheme(
+internal val DraculaLightScheme = tillyLightColorScheme(
     primary = DraculaPink,
     onPrimary = Color.White,
     primaryContainer = Color(0xFFF3E5F5),
     onPrimaryContainer = Color(0xFF4A148C),
-
-    secondary = NeoGray200,
-    onSecondary = Color(0xFF030213),
-    secondaryContainer = NeoGray100,
-    onSecondaryContainer = Color(0xFF030213),
-
     tertiary = DraculaCyan,
     onTertiary = NeoDarkBase,
     tertiaryContainer = Color(0xFFE0F8F0),
     onTertiaryContainer = Color(0xFF003822),
-
-    error = NeoDestructive,
-    onError = Color.White,
-    errorContainer = Color(0xFFFFDAD6),
-    onErrorContainer = Color(0xFF410002),
-
-    background = Color.White,
-    onBackground = Color(0xFF030213),
-
-    surface = Color.White,
-    onSurface = Color(0xFF030213),
-    surfaceVariant = NeoGray50,
-    onSurfaceVariant = NeoGray400,
-
-    outline = Color(0x1A000000),
-    outlineVariant = NeoDarkBorder,
 )
 
 // Monokai Light Scheme
-internal val MonokaiLightScheme = lightColorScheme(
+internal val MonokaiLightScheme = tillyLightColorScheme(
     primary = MonokaiPink,
     onPrimary = Color.White,
     primaryContainer = Color(0xFFFFE0B2),
     onPrimaryContainer = Color(0xFFE65100),
-
-    secondary = NeoGray200,
-    onSecondary = Color(0xFF030213),
-    secondaryContainer = NeoGray100,
-    onSecondaryContainer = Color(0xFF030213),
-
     tertiary = MonokaiGreen,
     onTertiary = NeoDarkBase,
     tertiaryContainer = Color(0xFFE0F8F0),
     onTertiaryContainer = Color(0xFF003822),
-
-    error = NeoDestructive,
-    onError = Color.White,
-    errorContainer = Color(0xFFFFDAD6),
-    onErrorContainer = Color(0xFF410002),
-
-    background = Color.White,
-    onBackground = Color(0xFF030213),
-
-    surface = Color.White,
-    onSurface = Color(0xFF030213),
-    surfaceVariant = NeoGray50,
-    onSurfaceVariant = NeoGray400,
-
-    outline = Color(0x1A000000),
-    outlineVariant = NeoDarkBorder,
 )
 
 // One Dark Light Scheme
-internal val OneDarkLightScheme = lightColorScheme(
+internal val OneDarkLightScheme = tillyLightColorScheme(
     primary = OneDarkBlue,
     onPrimary = Color.White,
     primaryContainer = Color(0xFFBBDEFB),
     onPrimaryContainer = Color(0xFF0D47A1),
-
-    secondary = NeoGray200,
-    onSecondary = Color(0xFF030213),
-    secondaryContainer = NeoGray100,
-    onSecondaryContainer = Color(0xFF030213),
-
     tertiary = OneDarkGreen,
     onTertiary = NeoDarkBase,
     tertiaryContainer = Color(0xFFE0F8F0),
     onTertiaryContainer = Color(0xFF003822),
-
-    error = NeoDestructive,
-    onError = Color.White,
-    errorContainer = Color(0xFFFFDAD6),
-    onErrorContainer = Color(0xFF410002),
-
-    background = Color.White,
-    onBackground = Color(0xFF030213),
-
-    surface = Color.White,
-    onSurface = Color(0xFF030213),
-    surfaceVariant = NeoGray50,
-    onSurfaceVariant = NeoGray400,
-
-    outline = Color(0x1A000000),
-    outlineVariant = NeoDarkBorder,
 )
 
 // Nord Light Scheme
-internal val NordLightScheme = lightColorScheme(
+internal val NordLightScheme = tillyLightColorScheme(
     primary = NordFrost2,
     onPrimary = Color.White,
     primaryContainer = Color(0xFFBBDEFB),
     onPrimaryContainer = Color(0xFF0D47A1),
-
-    secondary = NeoGray200,
-    onSecondary = Color(0xFF030213),
-    secondaryContainer = NeoGray100,
-    onSecondaryContainer = Color(0xFF030213),
-
     tertiary = NordAurora3,
     onTertiary = NeoDarkBase,
     tertiaryContainer = Color(0xFFE0F8F0),
     onTertiaryContainer = Color(0xFF003822),
-
-    error = NeoDestructive,
-    onError = Color.White,
-    errorContainer = Color(0xFFFFDAD6),
-    onErrorContainer = Color(0xFF410002),
-
-    background = Color.White,
-    onBackground = Color(0xFF030213),
-
-    surface = Color.White,
-    onSurface = Color(0xFF030213),
-    surfaceVariant = NeoGray50,
-    onSurfaceVariant = NeoGray400,
-
-    outline = Color(0x1A000000),
-    outlineVariant = NeoDarkBorder,
 )
 
 // Gruvbox Light Scheme
-internal val GruvboxLightScheme = lightColorScheme(
+internal val GruvboxLightScheme = tillyLightColorScheme(
     primary = GruvboxAqua,
     onPrimary = Color.White,
     primaryContainer = Color(0xFFBBDEFB),
     onPrimaryContainer = Color(0xFF0D47A1),
-
-    secondary = NeoGray200,
-    onSecondary = Color(0xFF030213),
-    secondaryContainer = NeoGray100,
-    onSecondaryContainer = Color(0xFF030213),
-
     tertiary = GruvboxOrange,
     onTertiary = NeoDarkBase,
     tertiaryContainer = Color(0xFFE0F8F0),
     onTertiaryContainer = Color(0xFF003822),
-
-    error = NeoDestructive,
-    onError = Color.White,
-    errorContainer = Color(0xFFFFDAD6),
-    onErrorContainer = Color(0xFF410002),
-
-    background = Color.White,
-    onBackground = Color(0xFF030213),
-
-    surface = Color.White,
-    onSurface = Color(0xFF030213),
-    surfaceVariant = NeoGray50,
-    onSurfaceVariant = NeoGray400,
-
-    outline = Color(0x1A000000),
-    outlineVariant = NeoDarkBorder,
 )
 
 // ============================================
