@@ -53,10 +53,10 @@ val BottomSheetShape = RoundedCornerShape(
 val DialogShape = RoundedCornerShape(16.dp)
 
 // Chip/Tag shape
-val ChipShape = RoundedCornerShape(8.dp)
+val ChipShape = TillyShapes.small
 
 // Button shape (slightly rounded)
-val ButtonShape = RoundedCornerShape(10.dp)
+val ButtonShape = TillyShapes.medium
 
 // Input field shape
-val InputShape = RoundedCornerShape(8.dp)
+val InputShape = TillyShapes.small
