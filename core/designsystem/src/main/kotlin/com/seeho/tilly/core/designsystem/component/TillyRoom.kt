@@ -62,7 +62,7 @@ fun TillyRoom(
 
 @Composable
 private fun PixelAsset(
-    resId: Int,
+    @DrawableRes resId: Int,
     modifier: Modifier = Modifier
 ) {
     Image(
