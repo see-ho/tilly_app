@@ -31,6 +31,7 @@ import com.seeho.tilly.core.designsystem.component.EmotionScoreIndicator
 import com.seeho.tilly.core.designsystem.theme.DifficultyEasy
 import com.seeho.tilly.core.designsystem.theme.DifficultyHard
 import com.seeho.tilly.core.designsystem.theme.DifficultyMedium
+import com.seeho.tilly.core.designsystem.theme.DifficultyVeryHard
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.core.model.Til
 
@@ -62,6 +63,7 @@ fun TilDetailCommentCard(
         "EASY" -> DifficultyEasy
         "NORMAL" -> DifficultyMedium
         "HARD" -> DifficultyHard
+        "VERYHARD" ->DifficultyVeryHard
         else -> DifficultyMedium
     }
 
@@ -87,7 +89,7 @@ fun TilDetailCommentCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Black, shape = MaterialTheme.shapes.small)
+                    .background(color = MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.small)
                     .border(
                         width = 1.dp, 
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), 
@@ -158,6 +160,7 @@ fun TilDetailCommentCard(
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp)
                             )
+                            Spacer(modifier = Modifier.width(2.dp))
                             Text(
                                 text = difficultyLevel.uppercase(),
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
