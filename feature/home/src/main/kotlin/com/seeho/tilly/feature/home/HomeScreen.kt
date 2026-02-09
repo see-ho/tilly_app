@@ -1,5 +1,6 @@
 package com.seeho.tilly.feature.home
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -51,7 +52,7 @@ fun HomeContent(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { padding ->
-        androidx.compose.foundation.layout.Column(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)

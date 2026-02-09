@@ -1,6 +1,7 @@
 package com.seeho.tilly.core.designsystem.component
 
 import android.content.res.Configuration
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -25,12 +26,12 @@ import com.seeho.tilly.core.designsystem.theme.TillyTheme
 @Composable
 fun TillyRoom(
     modifier: Modifier = Modifier,
-    chairRes: Int = R.drawable.bg_chair_basic,
-    deskRes: Int = R.drawable.bg_desk_basic,
-    charRes: Int = R.drawable.char_tilly,
-    comRes: Int = R.drawable.obj_com_basic,
-    keyboardRes: Int = R.drawable.obj_keyboard_basic,
-    deskItemRes: Int? = null,
+    @DrawableRes chairRes: Int = R.drawable.bg_chair_basic,
+    @DrawableRes deskRes: Int = R.drawable.bg_desk_basic,
+    @DrawableRes charRes: Int = R.drawable.char_tilly,
+    @DrawableRes comRes: Int = R.drawable.obj_com_basic,
+    @DrawableRes keyboardRes: Int = R.drawable.obj_keyboard_basic,
+    @DrawableRes deskItemRes: Int? = null,
 ) {
     Box(
         modifier = modifier,

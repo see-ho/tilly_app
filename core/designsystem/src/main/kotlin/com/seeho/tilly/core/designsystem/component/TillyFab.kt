@@ -54,7 +54,7 @@ fun TillyFab(
         FloatingActionButton(
             onClick = onClick,
             containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = Color.Black,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp)
         ) {
