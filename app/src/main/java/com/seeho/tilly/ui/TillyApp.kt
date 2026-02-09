@@ -17,6 +17,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
+import com.seeho.tilly.core.designsystem.component.TillyTopAppBar
 import com.seeho.tilly.core.navigation.TilDetail
 import com.seeho.tilly.feature.home.navigation.Home
 import com.seeho.tilly.feature.home.navigation.homeScreen
@@ -36,6 +37,13 @@ fun TillyApp(
     appState: TillyAppState = rememberTillyAppState(),
 ) {
     Scaffold(
+        topBar = {
+            if (appState.currentTopLevelDestination != null) {
+                TillyTopAppBar(
+                    onSettingsClick = { /* TODO: 설정 화면*/ }
+                )
+            }
+        },
         bottomBar = {
             if (appState.currentTopLevelDestination != null) {
                 AppBottomBar(
@@ -44,7 +52,7 @@ fun TillyApp(
                     currentDestination = appState.currentDestination,
                 )
             }
-        }
+        },
     ) { padding ->
         Box(
             modifier = Modifier
