@@ -70,7 +70,7 @@ fun HomeContent(
 @Composable
 private fun HomeContentPreview() {
     val sampleEntries = sampleTilEntries
-     TillyTheme {
+    TillyTheme {
         HomeContent(
             entries = sampleEntries,
             onTilClick = {},
