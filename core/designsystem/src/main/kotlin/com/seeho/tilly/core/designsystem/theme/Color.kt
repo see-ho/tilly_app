@@ -129,7 +129,8 @@ val EmotionLevel5 = Color(0xFFDAC670)  // 최고
 // Difficulty Colors
 val DifficultyEasy = Color(0xFF4CAF50)
 val DifficultyMedium = Color(0xFFFFEB3B)
-val DifficultyHard = Color(0xFFF44336)
+val DifficultyHard = Color(0xFFFF9800)
+val DifficultyVeryHard = Color(0xFFF44336)
 
 // ============================================
 // Chart Colors (for Statistics)

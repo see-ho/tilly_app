@@ -2,6 +2,7 @@ package com.seeho.tilly.core.designsystem.component
 
 import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -23,13 +24,17 @@ import com.seeho.tilly.core.designsystem.theme.TillyTheme
 @Composable
 fun TillyTopAppBar(
     modifier: Modifier = Modifier,
-    onSettingsClick: () -> Unit = {},
+    titleText: String = "TILLY",
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    onSettingsClick: (() -> Unit)? = null,
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier,
+        navigationIcon = navigationIcon,
         title = {
             Text(
-                text = "TILLY",
+                text = titleText,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.5.sp
@@ -38,12 +43,15 @@ fun TillyTopAppBar(
             )
         },
         actions = {
-            IconButton(onClick = onSettingsClick) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.primary
-                )
+            actions()
+            if (onSettingsClick != null) {
+                IconButton(onClick = onSettingsClick) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

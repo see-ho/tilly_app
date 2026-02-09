@@ -78,7 +78,13 @@ fun TillyApp(
                         appState.navController.navigateToShop()
                     }
                 )
-                tilDetailScreen()
+                tilDetailScreen(
+                    onBackClick = { appState.navController.popBackStack() },
+                    onDeleteClick = { id -> 
+                        // TODO 삭제 로직 추가
+                        appState.navController.popBackStack()
+                    }
+                )
                 reportScreen()
                 statisticsScreen()
                 shopScreen()

@@ -14,24 +14,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import com.seeho.tilly.core.designsystem.theme.EmotionLevel1
 import com.seeho.tilly.core.designsystem.theme.EmotionLevel2
 import com.seeho.tilly.core.designsystem.theme.EmotionLevel3
 import com.seeho.tilly.core.designsystem.theme.EmotionLevel4
 import com.seeho.tilly.core.designsystem.theme.EmotionLevel5
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
-import kotlin.math.roundToInt
 
 /**
  * 감정 점수(1-5)를 5단계 블록으로 보여주는 인디케이터
- * 각 단계별로 고유한 감정 색상이 적용되며, 피드 항목 등에서 사용됨
+ * 각 단계별로 고유한 감정 색상이 적용되며, 피드 항목 등에서 사용
  */
 @Composable
 fun EmotionScoreIndicator(
     score: Int,
     modifier: Modifier = Modifier,
+    blockWidth: Dp = 16.dp,
+    blockHeight: Dp = 10.dp,
 ) {
-    val safeScore = (score / 2f).roundToInt().coerceIn(0, 5)
+    val safeScore = score.coerceIn(0, 5)
 
     Row(
         modifier = modifier,
@@ -53,7 +55,7 @@ fun EmotionScoreIndicator(
 
             Box(
                 modifier = Modifier
-                    .size(width = 12.dp, height = 8.dp)
+                    .size(width = blockWidth, height = blockHeight)
                     .background(color)
             )
         }
