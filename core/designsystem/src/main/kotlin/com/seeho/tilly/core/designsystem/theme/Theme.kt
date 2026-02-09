@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun TillyTheme(
     appTheme: AppTheme = AppTheme.TILLY_GREEN,
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {

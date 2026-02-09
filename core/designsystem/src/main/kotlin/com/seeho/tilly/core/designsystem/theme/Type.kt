@@ -104,4 +104,11 @@ val TillyTypography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     ),
+    labelSmall = TextStyle(
+        fontFamily = JetBrainsMonoFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+    ),
 )
