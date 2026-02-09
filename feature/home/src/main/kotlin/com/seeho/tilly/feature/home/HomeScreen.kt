@@ -52,18 +52,14 @@ fun HomeContent(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { padding ->
-        Column(
+        TilFeed(
+            entries = entries,
+            onTilClick = onTilClick,
+            onShopClick = onShopClick,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-        ) {
-            TilFeed(
-                entries = entries,
-                onTilClick = onTilClick,
-                onShopClick = onShopClick,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+        )
     }
 }
 
