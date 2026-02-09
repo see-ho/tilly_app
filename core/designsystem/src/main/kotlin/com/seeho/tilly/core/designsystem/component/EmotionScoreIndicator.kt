@@ -24,12 +24,14 @@ import kotlin.math.roundToInt
 
 /**
  * 감정 점수(1-5)를 5단계 블록으로 보여주는 인디케이터
- * 각 단계별로 고유한 감정 색상이 적용되며, 피드 항목 등에서 사용됨
+ * 각 단계별로 고유한 감정 색상이 적용되며, 피드 항목 등에서 사용
  */
 @Composable
 fun EmotionScoreIndicator(
     score: Int,
     modifier: Modifier = Modifier,
+    blockWidth: androidx.compose.ui.unit.Dp = 16.dp,
+    blockHeight: androidx.compose.ui.unit.Dp = 10.dp,
 ) {
     val safeScore = (score / 2f).roundToInt().coerceIn(0, 5)
 
@@ -53,7 +55,7 @@ fun EmotionScoreIndicator(
 
             Box(
                 modifier = Modifier
-                    .size(width = 12.dp, height = 8.dp)
+                    .size(width = blockWidth, height = blockHeight)
                     .background(color)
             )
         }
