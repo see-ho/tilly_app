@@ -1,6 +1,7 @@
 plugins {
     id("tilly.android.library")
     id("tilly.android.hilt")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -12,4 +13,5 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:domain"))
     implementation(project(":core:database"))
+    implementation(libs.kotlinx.serialization.json)
 }

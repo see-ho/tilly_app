@@ -1,6 +1,7 @@
 plugins {
     id("tilly.android.library")
     id("tilly.android.hilt")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -19,4 +20,5 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+    implementation(libs.kotlinx.serialization.json)
 }
