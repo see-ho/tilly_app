@@ -1,5 +1,6 @@
 package com.seeho.tilly.feature.tildetails
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,40 +14,77 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.seeho.tilly.core.designsystem.component.TillyTopAppBar
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.core.model.Til
-import com.seeho.tilly.core.navigation.TilDetail
 import com.seeho.tilly.feature.tildetails.components.TilDetailCommentCard
 import com.seeho.tilly.feature.tildetails.components.TilDetailHeader
 import com.seeho.tilly.feature.tildetails.components.TilDetailSection
 
-import com.seeho.tilly.core.model.mock.getSampleTil
-
 @Composable
 fun TilDetailScreen(
-    tilDetail: TilDetail,
+    viewModel: TilDetailViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    onEditClick: (Long) -> Unit,
 ) {
-    // val uiState by viewModel.uiState.collectAsState()
-    
-    val til = getSampleTil(tilDetail.tilId)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    TilDetailContent(
-        til = til,
-        onBackClick = onBackClick,
-        onDeleteClick = onDeleteClick
-    )
+    // 삭제 성공 이벤트 수신 → 화면 종료
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                TilDetailEvent.DeleteSuccess -> onDeleteClick()
+            }
+        }
+    }
+
+    when (val state = uiState) {
+        is TilDetailUiState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        }
+        is TilDetailUiState.NotFound -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "TIL을 찾을 수 없습니다",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        is TilDetailUiState.Success -> {
+            TilDetailContent(
+                til = state.til,
+                onBackClick = onBackClick,
+                onDeleteClick = viewModel::onDelete,
+                onEditClick = { onEditClick(state.til.id) },
+            )
+        }
+    }
 }
 
 @Composable
@@ -54,6 +92,7 @@ fun TilDetailContent(
     til: Til,
     onBackClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    onEditClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -70,6 +109,15 @@ fun TilDetailContent(
                     }
                 },
                 actions = {
+                    // 편집 버튼
+                    IconButton(onClick = onEditClick) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    // 삭제 버튼
                     IconButton(onClick = onDeleteClick) {
                         Icon(
                             imageVector = Icons.Default.Delete,
@@ -91,11 +139,11 @@ fun TilDetailContent(
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             TilDetailHeader(til = til)
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             TilDetailSection(
                 title = "What I Learned",
                 content = til.learned,
@@ -121,14 +169,14 @@ fun TilDetailContent(
                     icon = Icons.Default.Edit
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             TilDetailCommentCard(
                 til = til,
                 feedback = "정말 잘했는데요? 상태 관리를 공부했군요. 난이도가 어려운데 잘 해낸 것 같아요. 앞으로도 화이팅해봐요!"
             )
-            
+
             Spacer(modifier = Modifier.height(40.dp))
         }
     }
@@ -137,12 +185,24 @@ fun TilDetailContent(
 @Preview(showBackground = true)
 @Composable
 private fun TilDetailScreenPreview() {
+    val sampleTil = Til(
+        id = 1L,
+        title = "Jetpack Compose ViewModel로 상태 관리하기",
+        learned = "오늘은 Jetpack Compose에서 ViewModel과 StateFlow를 사용해서 상태를 관리하는 방법을 배웠다.",
+        difficulty = "MutableStateFlow와 MutableState를 언제 써야 하는지 헷갈렸다.",
+        tomorrow = "내일은 더 복잡한 예제를 구현할 계획이다.",
+        tags = listOf("jetpack compose", "viewmodel"),
+        emotionScore = 4,
+        difficultyLevel = "HARD",
+        createdAt = System.currentTimeMillis(),
+    )
     TillyTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             TilDetailContent(
-                til = getSampleTil(12345L),
+                til = sampleTil,
                 onBackClick = {},
-                onDeleteClick = {}
+                onDeleteClick = {},
+                onEditClick = {},
             )
         }
     }

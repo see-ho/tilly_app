@@ -11,14 +11,15 @@ fun NavController.navigateToTilDetail(tilId: Long) = navigate(TilDetail(tilId))
 
 fun NavGraphBuilder.tilDetailScreen(
     onBackClick: () -> Unit,
-    onDeleteClick: (Long) -> Unit,
+    onDeleteClick: () -> Unit,
+    onEditClick: (Long) -> Unit,
 ) {
     composable<TilDetail> { backStackEntry ->
         val detail: TilDetail = backStackEntry.toRoute()
         TilDetailScreen(
-            tilDetail = detail,
             onBackClick = onBackClick,
-            onDeleteClick = { onDeleteClick(detail.tilId) }
+            onDeleteClick = onDeleteClick,
+            onEditClick = onEditClick,
         )
     }
 }

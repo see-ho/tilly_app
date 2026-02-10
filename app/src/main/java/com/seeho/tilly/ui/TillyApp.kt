@@ -80,15 +80,21 @@ fun TillyApp(
                 )
                 tilDetailScreen(
                     onBackClick = { appState.navController.popBackStack() },
-                    onDeleteClick = { id -> 
-                        // TODO 삭제 로직 추가
+                    onDeleteClick = {
+                        // 삭제 후 Home으로 돌아가기
                         appState.navController.popBackStack()
+                    },
+                    onEditClick = { tilId ->
+                        // 수정 모드로 Editor 진입
+                        appState.navController.navigateToEditor(tilId)
                     }
                 )
                 reportScreen()
                 statisticsScreen()
                 shopScreen()
-                editorScreen()
+                editorScreen(
+                    onBackClick = { appState.navController.popBackStack() }
+                )
             }
         }
     }
