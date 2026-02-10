@@ -13,6 +13,7 @@ data class Til(
     val emotion: String? = null,         // AI 분석: 감정 키워드
     val emotionScore: Int? = null,       // AI 분석: 감정 점수 (1-5)
     val difficultyLevel: String? = null,  // AI 분석: 체감 난이도
+    val feedback: String? = null,        // AI 분석: 틸리의 한마디 피드백
     val createdAt: Long,                 // 생성 일시 (milliseconds timestamp)
     val updatedAt: Long? = null          // 수정 일시 (milliseconds timestamp)
 )

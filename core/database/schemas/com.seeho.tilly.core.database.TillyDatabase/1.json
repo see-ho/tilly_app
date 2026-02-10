@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "546a54b4a17fec59cad12633bf98ceaf",
+    "identityHash": "690856cbd943cb43b4b3ff32a7715495",
     "entities": [
       {
         "tableName": "tils",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `learned` TEXT NOT NULL, `difficulty` TEXT, `tomorrow` TEXT, `tags` TEXT NOT NULL, `emotion` TEXT, `emotionScore` INTEGER, `difficultyLevel` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `learned` TEXT NOT NULL, `difficulty` TEXT, `tomorrow` TEXT, `tags` TEXT NOT NULL, `emotion` TEXT, `emotionScore` INTEGER, `difficultyLevel` TEXT, `feedback` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -63,6 +63,12 @@
             "notNull": false
           },
           {
+            "fieldPath": "feedback",
+            "columnName": "feedback",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "createdAt",
             "columnName": "createdAt",
             "affinity": "INTEGER",
@@ -88,7 +94,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '546a54b4a17fec59cad12633bf98ceaf')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '690856cbd943cb43b4b3ff32a7715495')"
     ]
   }
 }
