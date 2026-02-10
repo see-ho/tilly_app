@@ -1,6 +1,7 @@
 package com.seeho.tilly.feature.editor
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,19 +17,21 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.seeho.tilly.core.designsystem.component.TillyTopAppBar
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.feature.editor.component.CodeLineNumberTextField
@@ -37,31 +40,44 @@ import com.seeho.tilly.feature.editor.component.TitleTextField
 
 @Composable
 fun EditorScreen(
+    viewModel: EditorViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {},
 ) {
-    // 각 섹션의 입력 상태
-    var title by rememberSaveable { mutableStateOf("") }
-    var todayLearning by rememberSaveable { mutableStateOf("") }
-    var difficulties by rememberSaveable { mutableStateOf("") }
-    var tomorrowPlan by rememberSaveable { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // 저장 가능 여부: 제목과 오늘 배운 것이 비어있지 않을 때
-    val isSaveEnabled = title.isNotBlank() && todayLearning.isNotBlank()
+    // 저장 성공 이벤트 수신 → 화면 종료
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                EditorEvent.SaveSuccess -> onBackClick()
+            }
+        }
+    }
+
+    // 로딩 중 (수정 모드에서 기존 데이터 불러오는 중)
+    if (uiState.isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
+        return
+    }
 
     EditorContent(
-        title = title,
-        onTitleChange = { title = it },
-        todayLearning = todayLearning,
-        onTodayLearningChange = { todayLearning = it },
-        difficulties = difficulties,
-        onDifficultiesChange = { difficulties = it },
-        tomorrowPlan = tomorrowPlan,
-        onTomorrowPlanChange = { tomorrowPlan = it },
-        isSaveEnabled = isSaveEnabled,
+        title = uiState.title,
+        onTitleChange = viewModel::onTitleChange,
+        todayLearning = uiState.todayLearning,
+        onTodayLearningChange = viewModel::onTodayLearningChange,
+        difficulties = uiState.difficulties,
+        onDifficultiesChange = viewModel::onDifficultiesChange,
+        tomorrowPlan = uiState.tomorrowPlan,
+        onTomorrowPlanChange = viewModel::onTomorrowPlanChange,
+        isSaveEnabled = uiState.isSaveEnabled,
+        isEditMode = uiState.isEditMode,
         onBackClick = onBackClick,
-        onSaveClick = {
-            // TODO: ViewModel을 통한 저장 로직 연결
-        },
+        onSaveClick = viewModel::onSave,
     )
 }
 
@@ -76,6 +92,7 @@ fun EditorContent(
     tomorrowPlan: String,
     onTomorrowPlanChange: (String) -> Unit,
     isSaveEnabled: Boolean,
+    isEditMode: Boolean,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -84,7 +101,7 @@ fun EditorContent(
         modifier = modifier,
         topBar = {
             TillyTopAppBar(
-                titleText = "TIL 작성",
+                titleText = if (isEditMode) "TIL 수정" else "TIL 작성",
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -212,6 +229,7 @@ private fun EditorContentPreview() {
             tomorrowPlan = "",
             onTomorrowPlanChange = {},
             isSaveEnabled = false,
+            isEditMode = false,
             onBackClick = {},
             onSaveClick = {},
         )

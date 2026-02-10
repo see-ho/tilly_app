@@ -51,6 +51,9 @@ dependencies {
     implementation(project(":feature:editor"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:navigation"))
+    implementation(project(":core:database"))
+    implementation(project(":core:data"))
+    implementation(project(":core:domain"))
     
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

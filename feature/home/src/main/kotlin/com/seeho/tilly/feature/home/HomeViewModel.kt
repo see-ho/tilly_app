@@ -1,14 +1,40 @@
 package com.seeho.tilly.feature.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.seeho.tilly.core.domain.GetAllTilsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : ViewModel() {
+class HomeViewModel @Inject constructor(
+    getAllTilsUseCase: GetAllTilsUseCase,
+) : ViewModel() {
 
-    fun onTilClick(id: Long) {
-        Log.d("HomeViewModel", "onTilClick: $id")
-    }
+    /**
+     * Home 화면 UI 상태
+     * Flow를 StateFlow로 변환하여 Compose에서 수집
+     * WhileSubscribed(5_000): 구독자가 없어도 5초간 캐싱 (화면 회전 등에 유리)
+     */
+    val uiState: StateFlow<HomeUiState> = getAllTilsUseCase()
+        .map { tils ->
+            if (tils.isEmpty()) {
+                HomeUiState.Empty
+            } else {
+                HomeUiState.Success(tils)
+            }
+        }
+        .catch { e ->
+            emit(HomeUiState.Error(e.message))
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = HomeUiState.Loading,
+        )
 }

@@ -5,3 +5,7 @@ plugins {
 android {
     namespace = "com.seeho.tilly.feature.tildetails"
 }
+
+dependencies {
+    implementation(project(":core:domain"))
+}

@@ -1,20 +1,25 @@
 package com.seeho.tilly.feature.home
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.seeho.tilly.core.designsystem.component.TillyFab
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
-import com.seeho.tilly.core.model.TilEntry
-import com.seeho.tilly.core.model.mock.sampleTilEntries
+import com.seeho.tilly.core.model.Til
 import com.seeho.tilly.feature.home.components.TilFeed
 
 @Composable
@@ -24,20 +29,20 @@ fun HomeScreen(
     onEditorClick: () -> Unit,
     onShopClick: () -> Unit,
 ) {
-    // ViewModel이나 다른 상태 관리 로직은 여기서 처리 (Stateful)
-    val sampleEntries = remember { sampleTilEntries }
+    // ViewModel에서 UI 상태 수집
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     HomeContent(
-        entries = sampleEntries,
+        uiState = uiState,
         onTilClick = onTilClick,
         onEditorClick = onEditorClick,
-        onShopClick = onShopClick
+        onShopClick = onShopClick,
     )
 }
 
 @Composable
 fun HomeContent(
-    entries: List<TilEntry>,
+    uiState: HomeUiState,
     onTilClick: (Long) -> Unit,
     onEditorClick: () -> Unit,
     onShopClick: () -> Unit,
@@ -52,27 +57,81 @@ fun HomeContent(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { padding ->
-        TilFeed(
-            entries = entries,
-            onTilClick = onTilClick,
-            onShopClick = onShopClick,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        )
+        when (uiState) {
+            is HomeUiState.Loading -> {
+                // 로딩 인디케이터
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+            is HomeUiState.Empty -> {
+                // 빈 상태: TIL이 없을 때
+                TilFeed(
+                    tils = emptyList(),
+                    onTilClick = onTilClick,
+                    onShopClick = onShopClick,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                )
+            }
+            is HomeUiState.Success -> {
+                TilFeed(
+                    tils = uiState.tils,
+                    onTilClick = onTilClick,
+                    onShopClick = onShopClick,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                )
+            }
+
+            is HomeUiState.Error -> {
+                // TODO 에러 상태: TIL이 없을 때와 비슷하게 처리하거나 별도 UI 표시
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = uiState.message ?: "알 수 없는 오류가 발생했습니다.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+        }
     }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF000000)
 @Composable
 private fun HomeContentPreview() {
-    val sampleEntries = sampleTilEntries
+    val sampleTils = listOf(
+        Til(
+            id = 1L,
+            title = "Jetpack Compose Animation",
+            learned = "Today I learned how to use Animatable...",
+            tags = listOf("compose", "animation"),
+            emotionScore = 5,
+            createdAt = System.currentTimeMillis(),
+        ),
+    )
     TillyTheme {
         HomeContent(
-            entries = sampleEntries,
+            uiState = HomeUiState.Success(sampleTils),
             onTilClick = {},
             onEditorClick = {},
-            onShopClick = {}
+            onShopClick = {},
         )
     }
 }
