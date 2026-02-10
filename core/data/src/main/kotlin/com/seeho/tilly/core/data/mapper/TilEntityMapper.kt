@@ -19,6 +19,7 @@ fun TilEntity.toModel(): Til {
         emotion = emotion,
         emotionScore = emotionScore,
         difficultyLevel = difficultyLevel,
+        feedback = feedback,
         createdAt = createdAt,
         updatedAt = updatedAt,
     )
@@ -36,6 +37,7 @@ fun Til.toEntity(): TilEntity {
         emotion = emotion,
         emotionScore = emotionScore,
         difficultyLevel = difficultyLevel,
+        feedback = feedback,
         createdAt = createdAt,
         updatedAt = updatedAt,
     )

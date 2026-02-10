@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,9 +37,9 @@ import com.seeho.tilly.core.model.Til
 @Composable
 fun TilDetailCommentCard(
     til: Til,
-    feedback: String,
     modifier: Modifier = Modifier,
 ) {
+    val feedback = til.feedback ?: "분석된 내용이 없습니다."
     val emotionScore = til.emotionScore ?: 0
     val difficultyLevel = til.difficultyLevel ?: "NORMAL"
 
@@ -185,10 +184,9 @@ private fun TilDetailCommentCardPreview() {
                     learned = "Test",
                     emotionScore = 4,
                     difficultyLevel = "HARD",
+                    feedback = "정말 잘했는데요? 상태 관리를 공부했군요. 난이도가 어려운데 잘 해낸 것 같아요. 앞으로도 화이팅해봐요!",
                     createdAt = 0
                 ),
-                feedback = "정말 잘했는데요? 상태 관리를 공부했군요. 난이도가 어려운데 잘 해낸 것 같아요. 앞으로도 화이팅해봐요!",
-                modifier = Modifier.padding(16.dp)
             )
         }
     }

@@ -1,11 +1,9 @@
 package com.seeho.tilly.feature.home
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -17,7 +15,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.seeho.tilly.core.designsystem.component.TillyAlertDialog
 import com.seeho.tilly.core.designsystem.component.TillyFab
+import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.core.model.Til
 import com.seeho.tilly.feature.home.components.TilFeed
@@ -31,19 +31,33 @@ fun HomeScreen(
 ) {
     // ViewModel에서 UI 상태 수집
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val deletingTilId by viewModel.deletingTilId.collectAsStateWithLifecycle()
 
     HomeContent(
         uiState = uiState,
         onTilClick = onTilClick,
+        onDeleteClick = viewModel::showDeleteDialog,
         onEditorClick = onEditorClick,
         onShopClick = onShopClick,
     )
+
+    if (deletingTilId != null) {
+        TillyAlertDialog(
+            onDismissRequest = viewModel::dismissDeleteDialog,
+            onConfirm = viewModel::deleteTil,
+            title = "TIL 삭제",
+            text = "정말로 이 TIL을 삭제하시겠습니까? 삭제된 내용은 복구할 수 없습니다.",
+            confirmText = "삭제",
+            dismissText = "취소"
+        )
+    }
 }
 
 @Composable
 fun HomeContent(
     uiState: HomeUiState,
     onTilClick: (Long) -> Unit,
+    onDeleteClick: (Long) -> Unit,
     onEditorClick: () -> Unit,
     onShopClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -66,9 +80,7 @@ fun HomeContent(
                         .padding(padding),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                    )
+                    TillyLoadingIndicator()
                 }
             }
             is HomeUiState.Empty -> {
@@ -76,6 +88,7 @@ fun HomeContent(
                 TilFeed(
                     tils = emptyList(),
                     onTilClick = onTilClick,
+                    onDelete = onDeleteClick,
                     onShopClick = onShopClick,
                     modifier = Modifier
                         .fillMaxSize()
@@ -86,6 +99,7 @@ fun HomeContent(
                 TilFeed(
                     tils = uiState.tils,
                     onTilClick = onTilClick,
+                    onDelete = onDeleteClick,
                     onShopClick = onShopClick,
                     modifier = Modifier
                         .fillMaxSize()
@@ -130,6 +144,7 @@ private fun HomeContentPreview() {
         HomeContent(
             uiState = HomeUiState.Success(sampleTils),
             onTilClick = {},
+            onDeleteClick = {},
             onEditorClick = {},
             onShopClick = {},
         )

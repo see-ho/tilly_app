@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.seeho.tilly.core.domain.GetTilByIdUseCase
 import com.seeho.tilly.core.domain.SaveTilUseCase
 import com.seeho.tilly.core.domain.UpdateTilUseCase
+import com.seeho.tilly.core.domain.AnalyzeTilUseCase
 import com.seeho.tilly.core.model.Til
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,6 +26,7 @@ class EditorViewModel @Inject constructor(
     private val saveTilUseCase: SaveTilUseCase,
     private val updateTilUseCase: UpdateTilUseCase,
     private val getTilByIdUseCase: GetTilByIdUseCase,
+    private val analyzeTilUseCase: AnalyzeTilUseCase,
 ) : ViewModel() {
 
     // Navigation 인자에서 tilId 추출 (null이면 생성 모드)
@@ -88,6 +90,22 @@ class EditorViewModel @Inject constructor(
         if (!state.isSaveEnabled) return
 
         viewModelScope.launch {
+            _uiState.update { it.copy(isAnalyzing = true) }
+            
+            val analysisResult = try {
+                analyzeTilUseCase(
+                    title = state.title,
+                    learned = state.todayLearning,
+                    difficulty = state.difficulties.ifBlank { null },
+                    tomorrow = state.tomorrowPlan.ifBlank { null }
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            } finally {
+                _uiState.update { it.copy(isAnalyzing = false) }
+            }
+
             _uiState.update { it.copy(isSaving = true) }
             try {
                 // 수정 모드이면 기존 createdAt 사용, 없으면 현재 시간
@@ -99,18 +117,23 @@ class EditorViewModel @Inject constructor(
                     learned = state.todayLearning,
                     difficulty = state.difficulties.ifBlank { null },
                     tomorrow = state.tomorrowPlan.ifBlank { null },
-                    tags = emptyList(),
+                    tags = analysisResult?.tags ?: emptyList(),
+                    emotion = analysisResult?.emotion,
+                    emotionScore = analysisResult?.emotionScore,
+                    difficultyLevel = analysisResult?.difficultyLevel,
+                    feedback = analysisResult?.feedback,
                     createdAt = createdAt,
                     updatedAt = if (tilId != null) System.currentTimeMillis() else null,
                 )
 
-                if (tilId != null) {
+                val savedId = if (tilId != null) {
                     updateTilUseCase(til)
+                    tilId
                 } else {
                     saveTilUseCase(til)
                 }
 
-                _event.emit(EditorEvent.SaveSuccess)
+                _event.emit(EditorEvent.SaveSuccess(savedId))
             } catch (e: Exception) {
                 // TODO 에러 처리
                 e.printStackTrace()

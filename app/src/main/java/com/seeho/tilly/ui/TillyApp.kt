@@ -25,6 +25,7 @@ import com.seeho.tilly.feature.report.navigation.reportScreen
 import com.seeho.tilly.feature.statistics.navigation.statisticsScreen
 import com.seeho.tilly.feature.shop.navigation.shopScreen
 import com.seeho.tilly.feature.editor.navigation.editorScreen
+import com.seeho.tilly.feature.editor.navigation.EditorRoute
 import com.seeho.tilly.feature.report.navigation.ReportRoute
 import com.seeho.tilly.feature.statistics.navigation.StatisticsRoute
 import com.seeho.tilly.feature.tildetails.navigation.tilDetailScreen
@@ -93,7 +94,13 @@ fun TillyApp(
                 statisticsScreen()
                 shopScreen()
                 editorScreen(
-                    onBackClick = { appState.navController.popBackStack() }
+                    onBackClick = { appState.navController.popBackStack() },
+                    onShowDetail = { tilId ->
+                        appState.navController.navigate(TilDetail(tilId)) {
+                            popUpTo<EditorRoute> { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
         }
