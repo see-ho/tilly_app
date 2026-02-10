@@ -47,10 +47,16 @@ fun TillyRoom(
         PixelAsset(resId = keyboardRes)
 
         // 4. 캐릭터
-        GifAsset(gifRes = charRes)
+        GifAsset(
+            gifRes = charRes,
+            contentDescription = "Tilly"
+        )
 
         // 5. 컴퓨터
-        GifAsset(gifRes = comRes)
+        GifAsset(
+            gifRes = comRes,
+            contentDescription = "컴퓨터"
+        )
 
         // 6. 책상 위 소품 (있을 경우만)
         deskItemRes?.let { itemRes ->
