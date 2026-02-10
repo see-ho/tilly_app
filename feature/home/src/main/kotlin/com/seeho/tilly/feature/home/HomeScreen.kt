@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.seeho.tilly.core.designsystem.component.TillyAlertDialog
 import com.seeho.tilly.core.designsystem.component.TillyFab
 import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
@@ -41,7 +42,7 @@ fun HomeScreen(
     )
 
     if (deletingTilId != null) {
-        com.seeho.tilly.core.designsystem.component.TillyAlertDialog(
+        TillyAlertDialog(
             onDismissRequest = viewModel::dismissDeleteDialog,
             onConfirm = viewModel::deleteTil,
             title = "TIL 삭제",

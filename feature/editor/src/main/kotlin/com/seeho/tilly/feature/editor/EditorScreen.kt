@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
 import com.seeho.tilly.core.designsystem.component.TillyTopAppBar
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.feature.editor.component.CodeLineNumberTextField
@@ -224,7 +225,7 @@ fun EditorContent(
                     .background(Color.Black.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center,
             ) {
-                com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator(
+                TillyLoadingIndicator(
                     text = if (isAnalyzing) "틸리가 배운 내용을 분석하고 있어요..." else "저장 중..."
                 )
             }

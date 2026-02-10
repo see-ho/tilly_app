@@ -9,6 +9,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import javax.inject.Singleton
 
 /**
@@ -27,7 +29,9 @@ object DatabaseModule {
             context,
             TillyDatabase::class.java,
             "tilly_database",
-        ).build()
+        ).setQueryExecutor(Dispatchers.IO.asExecutor())
+            .setTransactionExecutor(Dispatchers.IO.asExecutor())
+            .build()
     }
 
     @Provides
