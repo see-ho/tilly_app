@@ -6,3 +6,8 @@ plugins {
 android {
     namespace = "com.seeho.tilly.core.designsystem"
 }
+
+dependencies {
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
+}

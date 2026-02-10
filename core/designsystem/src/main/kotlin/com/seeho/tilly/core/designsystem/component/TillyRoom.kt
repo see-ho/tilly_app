@@ -28,8 +28,8 @@ fun TillyRoom(
     modifier: Modifier = Modifier,
     @DrawableRes chairRes: Int = R.drawable.bg_chair_basic,
     @DrawableRes deskRes: Int = R.drawable.bg_desk_basic,
-    @DrawableRes charRes: Int = R.drawable.char_tilly,
-    @DrawableRes comRes: Int = R.drawable.obj_com_basic,
+    @DrawableRes charRes: Int = R.drawable.gif_tilly,
+    @DrawableRes comRes: Int = R.drawable.gif_obj_basic_com,
     @DrawableRes keyboardRes: Int = R.drawable.obj_keyboard_basic,
     @DrawableRes deskItemRes: Int? = null,
 ) {
@@ -40,17 +40,23 @@ fun TillyRoom(
         // 1. 의자
         PixelAsset(resId = chairRes)
 
-        // 2. 캐릭터
-        PixelAsset(resId = charRes)
-
-        // 3. 책상
+        // 2. 책상
         PixelAsset(resId = deskRes)
 
-        // 4. 키보드
+        // 3. 키보드
         PixelAsset(resId = keyboardRes)
 
+        // 4. 캐릭터
+        GifAsset(
+            gifRes = charRes,
+            contentDescription = "Tilly"
+        )
+
         // 5. 컴퓨터
-        PixelAsset(resId = comRes)
+        GifAsset(
+            gifRes = comRes,
+            contentDescription = "컴퓨터"
+        )
 
         // 6. 책상 위 소품 (있을 경우만)
         deskItemRes?.let { itemRes ->
