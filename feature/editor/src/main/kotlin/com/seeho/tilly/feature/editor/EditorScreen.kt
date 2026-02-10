@@ -1,6 +1,7 @@
 package com.seeho.tilly.feature.editor
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -76,6 +78,8 @@ fun EditorScreen(
         onTomorrowPlanChange = viewModel::onTomorrowPlanChange,
         isSaveEnabled = uiState.isSaveEnabled,
         isEditMode = uiState.isEditMode,
+        isSaving = uiState.isSaving,
+        isAnalyzing = uiState.isAnalyzing,
         onBackClick = onBackClick,
         onSaveClick = viewModel::onSave,
     )
@@ -93,6 +97,8 @@ fun EditorContent(
     onTomorrowPlanChange: (String) -> Unit,
     isSaveEnabled: Boolean,
     isEditMode: Boolean,
+    isSaving: Boolean,
+    isAnalyzing: Boolean,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -208,6 +214,20 @@ fun EditorContent(
 
             Spacer(modifier = Modifier.height(32.dp))
         }
+
+        // 저장 또는 분석 중일 때 전체 화면 로딩 오버레이
+        if (isSaving || isAnalyzing) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator(
+                    text = if (isAnalyzing) "틸리가 배운 내용을 분석하고 있어요..." else "저장 중..."
+                )
+            }
+        }
     }
 }
 
@@ -230,6 +250,8 @@ private fun EditorContentPreview() {
             onTomorrowPlanChange = {},
             isSaveEnabled = false,
             isEditMode = false,
+            isSaving = false,
+            isAnalyzing = false,
             onBackClick = {},
             onSaveClick = {},
         )
