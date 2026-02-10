@@ -132,7 +132,7 @@ fun EditorContent(
             Spacer(modifier = Modifier.height(20.dp))
 
             // 제목
-            EditorSection(label = "제목") {
+            EditorSection(label = "제목", isRequired = true) {
                 TitleTextField(
                     value = title,
                     onValueChange = onTitleChange,

@@ -68,11 +68,13 @@ fun CodeLineNumberTextField(
     // 표시할 줄 수 (실제 줄 수와 최소 줄 수 중 큰 값)
     val displayLineCount = maxOf(actualLineCount, minLines)
 
-    // 줄 수가 증가하면 자동으로 스크롤하여 커서가 보이도록 처리
+
+    var previousLineCount by remember { mutableIntStateOf(minLines) }
     LaunchedEffect(actualLineCount) {
-        if (actualLineCount > minLines) {
+        if (actualLineCount > previousLineCount && actualLineCount > minLines) {
             scrollState.animateScrollTo(scrollState.maxValue)
         }
+        previousLineCount = actualLineCount
     }
 
     Row(
