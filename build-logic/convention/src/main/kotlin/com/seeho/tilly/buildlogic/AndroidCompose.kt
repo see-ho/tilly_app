@@ -28,9 +28,6 @@ internal fun Project.configureAndroidCompose(
             implementation(libs.findLibrary("androidx-compose-material3").get())
             implementation(libs.findLibrary("androidx-compose-material-icons").get())
 
-            implementation(libs.findLibrary("coil-compose").get())
-            implementation(libs.findLibrary("coil-gif").get())
-
             debugImplementation(libs.findLibrary("androidx-compose-ui-tooling").get())
             debugImplementation(libs.findLibrary("androidx-compose-ui-test-manifest").get())
             
