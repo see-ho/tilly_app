@@ -20,5 +20,6 @@ data class EditorUiState(
 
 sealed interface EditorEvent {
     /** 저장 성공 → 화면 종료 */
-    data object SaveSuccess : EditorEvent
+    /** 저장 성공 → 화면 종료 (tilId 전달) */
+    data class SaveSuccess(val tilId: Long) : EditorEvent
 }

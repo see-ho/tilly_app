@@ -126,13 +126,14 @@ class EditorViewModel @Inject constructor(
                     updatedAt = if (tilId != null) System.currentTimeMillis() else null,
                 )
 
-                if (tilId != null) {
+                val savedId = if (tilId != null) {
                     updateTilUseCase(til)
+                    tilId
                 } else {
                     saveTilUseCase(til)
                 }
 
-                _event.emit(EditorEvent.SaveSuccess)
+                _event.emit(EditorEvent.SaveSuccess(savedId))
             } catch (e: Exception) {
                 // TODO 에러 처리
                 e.printStackTrace()

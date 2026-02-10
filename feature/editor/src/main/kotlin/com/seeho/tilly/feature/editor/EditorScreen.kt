@@ -44,14 +44,15 @@ import com.seeho.tilly.feature.editor.component.TitleTextField
 fun EditorScreen(
     viewModel: EditorViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {},
+    onShowDetail: (Long) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // 저장 성공 이벤트 수신 → 화면 종료
+    // 저장 성공 이벤트 수신 → 상세 화면으로 이동
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
-                EditorEvent.SaveSuccess -> onBackClick()
+                is EditorEvent.SaveSuccess -> onShowDetail(event.tilId)
             }
         }
     }

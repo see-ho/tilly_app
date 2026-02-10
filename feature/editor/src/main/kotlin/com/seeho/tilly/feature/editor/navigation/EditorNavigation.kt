@@ -21,10 +21,12 @@ fun NavController.navigateToEditor(tilId: Long? = null) {
 
 fun NavGraphBuilder.editorScreen(
     onBackClick: () -> Unit,
+    onShowDetail: (Long) -> Unit,
 ) {
     composable<EditorRoute> {
         EditorScreen(
             onBackClick = onBackClick,
+            onShowDetail = onShowDetail,
         )
     }
 }
