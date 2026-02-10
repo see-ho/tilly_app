@@ -31,19 +31,33 @@ fun HomeScreen(
 ) {
     // ViewModel에서 UI 상태 수집
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val deletingTilId by viewModel.deletingTilId.collectAsStateWithLifecycle()
 
     HomeContent(
         uiState = uiState,
         onTilClick = onTilClick,
+        onDeleteClick = viewModel::showDeleteDialog,
         onEditorClick = onEditorClick,
         onShopClick = onShopClick,
     )
+
+    if (deletingTilId != null) {
+        com.seeho.tilly.core.designsystem.component.TillyAlertDialog(
+            onDismissRequest = viewModel::dismissDeleteDialog,
+            onConfirm = viewModel::deleteTil,
+            title = "TIL 삭제",
+            text = "정말로 이 TIL을 삭제하시겠습니까? 삭제된 내용은 복구할 수 없습니다.",
+            confirmText = "삭제",
+            dismissText = "취소"
+        )
+    }
 }
 
 @Composable
 fun HomeContent(
     uiState: HomeUiState,
     onTilClick: (Long) -> Unit,
+    onDeleteClick: (Long) -> Unit,
     onEditorClick: () -> Unit,
     onShopClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -76,6 +90,7 @@ fun HomeContent(
                 TilFeed(
                     tils = emptyList(),
                     onTilClick = onTilClick,
+                    onDelete = onDeleteClick,
                     onShopClick = onShopClick,
                     modifier = Modifier
                         .fillMaxSize()
@@ -86,6 +101,7 @@ fun HomeContent(
                 TilFeed(
                     tils = uiState.tils,
                     onTilClick = onTilClick,
+                    onDelete = onDeleteClick,
                     onShopClick = onShopClick,
                     modifier = Modifier
                         .fillMaxSize()
@@ -130,6 +146,7 @@ private fun HomeContentPreview() {
         HomeContent(
             uiState = HomeUiState.Success(sampleTils),
             onTilClick = {},
+            onDeleteClick = {},
             onEditorClick = {},
             onShopClick = {},
         )

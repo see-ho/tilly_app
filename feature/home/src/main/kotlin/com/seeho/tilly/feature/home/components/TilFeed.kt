@@ -11,8 +11,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
@@ -25,6 +38,7 @@ import java.util.Locale
 fun TilFeed(
     tils: List<Til>,
     onTilClick: (Long) -> Unit,
+    onDelete: (Long) -> Unit,
     onShopClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -63,13 +77,53 @@ fun TilFeed(
                     )
                 )
 
-                TilFeedItem(
-                    title = til.title,
-                    emotionScore = til.emotionScore ?: 3,
-                    tags = til.tags,
-                    content = til.learned,
-                    onClick = { onTilClick(til.id) },
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                val dismissState = rememberSwipeToDismissBoxState()
+
+                LaunchedEffect(dismissState.currentValue) {
+                    if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                        onDelete(til.id)
+                        dismissState.snapTo(SwipeToDismissBoxValue.Settled)
+                    }
+                }
+
+                SwipeToDismissBox(
+                    state = dismissState,
+                    backgroundContent = {
+                        val color = if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                            MaterialTheme.colorScheme.errorContainer
+                        } else {
+                            Color.Transparent
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .background(color, MaterialTheme.shapes.medium)
+                                .padding(end = 16.dp),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                             if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            }
+                        }
+                    },
+                    content = {
+                        TilFeedItem(
+                            title = til.title,
+                            emotionScore = til.emotionScore ?: 3,
+                            tags = til.tags,
+                            content = til.learned,
+                            onClick = { onTilClick(til.id) },
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .fillMaxWidth()
+                        )
+                    }
                 )
             }
         }
@@ -97,6 +151,7 @@ private fun TilFeedPreview() {
             TilFeed(
                 tils = sampleTils,
                 onTilClick = {},
+                onDelete = {},
                 onShopClick = {},
                 modifier = Modifier.fillMaxSize()
             )
