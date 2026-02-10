@@ -13,6 +13,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.core.model.Til
@@ -28,7 +29,7 @@ fun TilFeed(
     modifier: Modifier = Modifier,
 ) {
     // 날짜 포맷터 (timestamp → "2026.02.10" 형태)
-    val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+    val dateFormat = remember { SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()) }
 
     LazyColumn(
         modifier = modifier,

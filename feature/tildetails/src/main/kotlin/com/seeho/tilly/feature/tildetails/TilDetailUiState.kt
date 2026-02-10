@@ -15,4 +15,7 @@ sealed interface TilDetailUiState {
 sealed interface TilDetailEvent {
     /** 삭제 성공 → 화면 종료 */
     data object DeleteSuccess : TilDetailEvent
+
+    /** 삭제 실패 */
+    data object DeleteFailed : TilDetailEvent
 }

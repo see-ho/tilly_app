@@ -51,6 +51,9 @@ fun TilDetailScreen(
         viewModel.event.collect { event ->
             when (event) {
                 TilDetailEvent.DeleteSuccess -> onDeleteClick()
+                TilDetailEvent.DeleteFailed -> {
+                    // TODO: 삭제 실패 알림
+                }
             }
         }
     }

@@ -1,33 +1,34 @@
 package com.seeho.tilly.core.database.converter
 
 import androidx.room.TypeConverter
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /**
  * Room TypeConverter: List<String> ↔ JSON String 변환
  */
 class TagListConverter {
 
+    private val json = Json { ignoreUnknownKeys = true }
+
     /**
      * List<String> → JSON String
-     * 예: ["kotlin", "compose"] → "[\"kotlin\",\"compose\"]"
      */
     @TypeConverter
     fun fromTagList(tags: List<String>): String {
-        return tags.joinToString(separator = ",") { "\"$it\"" }
-            .let { "[$it]" }
+        return json.encodeToString(tags)
     }
 
     /**
      * JSON String → List<String>
-     * 예: "[\"kotlin\",\"compose\"]" → ["kotlin", "compose"]
      */
     @TypeConverter
     fun toTagList(tagsString: String): List<String> {
-        if (tagsString == "[]" || tagsString.isBlank()) return emptyList()
-        return tagsString
-            .removeSurrounding("[", "]")
-            .split(",")
-            .map { it.trim().removeSurrounding("\"") }
-            .filter { it.isNotBlank() }
+        if (tagsString.isBlank()) return emptyList()
+        return try {
+            json.decodeFromString(tagsString)
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 }

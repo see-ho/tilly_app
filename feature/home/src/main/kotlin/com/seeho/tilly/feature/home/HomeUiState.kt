@@ -14,4 +14,7 @@ sealed interface HomeUiState {
 
     /** TIL 목록 로드 성공 */
     data class Success(val tils: List<Til>) : HomeUiState
+
+    /** 에러 발생 */
+    data class Error(val message: String?) : HomeUiState
 }

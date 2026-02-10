@@ -51,8 +51,14 @@ class TilDetailViewModel @Inject constructor(
     /** TIL 삭제 */
     fun onDelete() {
         viewModelScope.launch {
-            deleteTilUseCase(tilId)
-            _event.emit(TilDetailEvent.DeleteSuccess)
+            try {
+                deleteTilUseCase(tilId)
+                _event.emit(TilDetailEvent.DeleteSuccess)
+            } catch (e: Exception) {
+                // TODO 에러 처리
+                e.printStackTrace()
+                _event.emit(TilDetailEvent.DeleteFailed)
+            }
         }
     }
 }

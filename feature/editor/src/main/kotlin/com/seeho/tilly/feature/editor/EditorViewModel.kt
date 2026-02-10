@@ -56,6 +56,7 @@ class EditorViewModel @Inject constructor(
                         difficulties = til.difficulty ?: "",
                         tomorrowPlan = til.tomorrow ?: "",
                         isLoading = false,
+                        createdAt = til.createdAt
                     )
                 }
             } else {
@@ -88,32 +89,34 @@ class EditorViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
+            try {
+                // 수정 모드이면 기존 createdAt 사용, 없으면 현재 시간
+                val createdAt = state.createdAt ?: System.currentTimeMillis()
 
-            val til = Til(
-                id = tilId ?: 0L,
-                title = state.title,
-                learned = state.todayLearning,
-                difficulty = state.difficulties.ifBlank { null },
-                tomorrow = state.tomorrowPlan.ifBlank { null },
-                tags = emptyList(),
-                createdAt = if (tilId != null) 0L else System.currentTimeMillis(),
-                updatedAt = if (tilId != null) System.currentTimeMillis() else null,
-            )
-
-            if (tilId != null) {
-                // 수정 모드: 기존 createdAt 유지 필요
-                val existingTil = getTilByIdUseCase(tilId).firstOrNull()
-                val updatedTil = til.copy(
-                    createdAt = existingTil?.createdAt ?: System.currentTimeMillis(),
+                val til = Til(
+                    id = tilId ?: 0L,
+                    title = state.title,
+                    learned = state.todayLearning,
+                    difficulty = state.difficulties.ifBlank { null },
+                    tomorrow = state.tomorrowPlan.ifBlank { null },
+                    tags = emptyList(),
+                    createdAt = createdAt,
+                    updatedAt = if (tilId != null) System.currentTimeMillis() else null,
                 )
-                updateTilUseCase(updatedTil)
-            } else {
-                // 생성 모드
-                saveTilUseCase(til)
-            }
 
-            _uiState.update { it.copy(isSaving = false) }
-            _event.emit(EditorEvent.SaveSuccess)
+                if (tilId != null) {
+                    updateTilUseCase(til)
+                } else {
+                    saveTilUseCase(til)
+                }
+
+                _event.emit(EditorEvent.SaveSuccess)
+            } catch (e: Exception) {
+                // TODO 에러 처리
+                e.printStackTrace()
+            } finally {
+                _uiState.update { it.copy(isSaving = false) }
+            }
         }
     }
 }

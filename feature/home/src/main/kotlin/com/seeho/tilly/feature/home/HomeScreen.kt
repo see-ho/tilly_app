@@ -92,6 +92,23 @@ fun HomeContent(
                         .padding(padding),
                 )
             }
+
+            is HomeUiState.Error -> {
+                // TODO 에러 상태: TIL이 없을 때와 비슷하게 처리하거나 별도 UI 표시
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = uiState.message ?: "알 수 없는 오류가 발생했습니다.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
         }
     }
 }
