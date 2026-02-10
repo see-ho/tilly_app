@@ -49,21 +49,28 @@ fun CodeLineNumberTextField(
     // 줄번호 패널과 텍스트 필드가 공유하는 스크롤 상태
     val scrollState = rememberScrollState()
 
+    val outlineColor = MaterialTheme.colorScheme.outline
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
     // 줄번호 텍스트 스타일
-    val lineNumberStyle = TextStyle(
-        fontFamily = JetBrainsMonoFontFamily,
-        fontSize = 14.sp,
-        lineHeight = 24.sp,
-        color = MaterialTheme.colorScheme.outline,
-    )
+    val lineNumberStyle = remember(outlineColor) {
+        TextStyle(
+            fontFamily = JetBrainsMonoFontFamily,
+            fontSize = 14.sp,
+            lineHeight = 24.sp,
+            color = outlineColor,
+        )
+    }
 
     // 본문 텍스트 스타일
-    val textStyle = TextStyle(
-        fontFamily = JetBrainsMonoFontFamily,
-        fontSize = 14.sp,
-        lineHeight = 24.sp,
-        color = MaterialTheme.colorScheme.onSurface,
-    )
+    val textStyle = remember(onSurfaceColor) {
+        TextStyle(
+            fontFamily = JetBrainsMonoFontFamily,
+            fontSize = 14.sp,
+            lineHeight = 24.sp,
+            color = onSurfaceColor,
+        )
+    }
 
     // 표시할 줄 수 (실제 줄 수와 최소 줄 수 중 큰 값)
     val displayLineCount = maxOf(actualLineCount, minLines)
