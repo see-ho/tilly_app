@@ -103,10 +103,9 @@ class EditorViewModel @Inject constructor(
                 e.printStackTrace()
                 null
             } finally {
-                _uiState.update { it.copy(isAnalyzing = false) }
+                _uiState.update { it.copy(isAnalyzing = false, isSaving = true) }
             }
 
-            _uiState.update { it.copy(isSaving = true) }
             try {
                 // 수정 모드이면 기존 createdAt 사용, 없으면 현재 시간
                 val createdAt = state.createdAt ?: System.currentTimeMillis()
