@@ -1,6 +1,6 @@
 package com.seeho.tilly.core.network.di
 
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.seeho.tilly.core.network.BuildConfig
 import com.seeho.tilly.core.network.OpenAIApi
 import dagger.Module
@@ -37,6 +37,7 @@ object NetworkModule {
             } else {
                 HttpLoggingInterceptor.Level.NONE
             }
+            redactHeader("Authorization")
         }
 
         val authInterceptor = Interceptor { chain ->
