@@ -23,10 +23,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,12 +52,16 @@ fun EditorScreen(
     onShowDetail: (Long) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    // 저장 성공 이벤트 수신 → 상세 화면으로 이동
+    // 이벤트 수신 → 저장 성공 시 상세 화면 이동, 실패 시 스낵바 표시
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
                 is EditorEvent.SaveSuccess -> onShowDetail(event.tilId)
+                is EditorEvent.SaveFailed -> {
+                    snackbarHostState.showSnackbar("저장에 실패했습니다. 다시 시도해주세요.")
+                }
             }
         }
     }
@@ -84,6 +92,7 @@ fun EditorScreen(
         isAnalyzing = uiState.isAnalyzing,
         onBackClick = onBackClick,
         onSaveClick = viewModel::onSave,
+        snackbarHostState = snackbarHostState,
     )
 }
 
@@ -103,10 +112,21 @@ fun EditorContent(
     isAnalyzing: Boolean,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier,
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                //TODO 스타일 수정
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = Color.Black,
+                    contentColor = Color.White,
+                )
+            }
+        },
         topBar = {
             TillyTopAppBar(
                 titleText = if (isEditMode) "TIL 수정" else "TIL 작성",

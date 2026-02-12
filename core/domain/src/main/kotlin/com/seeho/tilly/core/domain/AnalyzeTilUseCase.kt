@@ -6,6 +6,7 @@ import javax.inject.Inject
 
 /**
  * TIL 내용을 분석하여 AI 결과를 반환하는 UseCase
+ * Result 타입으로 성공/실패를 구분
  */
 class AnalyzeTilUseCase @Inject constructor(
     private val aiAnalysisRepository: AiAnalysisRepository
@@ -16,7 +17,7 @@ class AnalyzeTilUseCase @Inject constructor(
         learned: String,
         difficulty: String?,
         tomorrow: String?
-    ): AiAnalysisResult {
+    ): Result<AiAnalysisResult> {
         return aiAnalysisRepository.analyzeTil(title, learned, difficulty, tomorrow)
     }
 }

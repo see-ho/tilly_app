@@ -2,6 +2,7 @@ package com.seeho.tilly.core.network
 
 import com.seeho.tilly.core.network.model.OpenAIChatRequest
 import com.seeho.tilly.core.network.model.OpenAIMessage
+import com.seeho.tilly.core.network.model.TilAnalysisResult
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.intOrNull
@@ -10,26 +11,23 @@ import kotlinx.serialization.serializer
 import kotlinx.serialization.builtins.ListSerializer
 import javax.inject.Inject
 import javax.inject.Singleton
-
-data class TilAnalysisResult(
-    val emotion: String,
-    val emotionScore: Int,
-    val difficultyLevel: String,
-    val feedback: String,
-    val tags: List<String>
-)
+import kotlin.coroutines.cancellation.CancellationException
 
 @Singleton
 class OpenAIService @Inject constructor(
     private val api: OpenAIApi,
     private val json: Json
 ) {
+    /**
+     * TIL 내용을 OpenAI로 분석하여 결과를 반환
+     * @return Result<TilAnalysisResult> — 성공 시 분석 결과, 실패 시 예외 정보 포함
+     */
     suspend fun analyzeTil(
         title: String,
         learned: String,
         difficulty: String?,
         tomorrow: String?
-    ): TilAnalysisResult {
+    ): Result<TilAnalysisResult> {
 
         val prompt = """
 당신은 풀스택 전문 테크 리드(Tech Lead)이자 학습 코치입니다. 
@@ -73,36 +71,32 @@ class OpenAIService @Inject constructor(
             )
         )
 
-        try {
+        return try {
             val response = api.createChatCompletion(request)
-            val content = response.choices.firstOrNull()?.message?.content 
-                ?: throw Exception("Empty response from OpenAI")
-                
+            val content = response.choices.firstOrNull()?.message?.content
+                ?: return Result.failure(Exception("OpenAI 응답이 비어있습니다"))
+
             val cleanJson = content.replace("```json", "").replace("```", "").trim()
             val jsonElement = json.parseToJsonElement(cleanJson)
-            val jsonObject = jsonElement as JsonObject
 
-            return TilAnalysisResult(
-                emotion = jsonObject["emotion"]?.jsonPrimitive?.content ?: "평범",
-                emotionScore = jsonObject["emotionScore"]?.jsonPrimitive?.intOrNull ?: 3,
-                difficultyLevel = jsonObject["difficultyLevel"]?.jsonPrimitive?.content ?: "NORMAL",
-                feedback = jsonObject["feedback"]?.jsonPrimitive?.content ?: "오늘도 수고하셨어요!",
-                tags = jsonObject["tags"]?.let { 
-                    json.decodeFromJsonElement(ListSerializer(serializer<String>()), it) 
-                } ?: emptyList()
+            val jsonObject = jsonElement as? JsonObject
+                ?: return Result.failure(Exception("OpenAI 응답이 JSON 객체가 아닙니다: $cleanJson"))
+
+            Result.success(
+                TilAnalysisResult(
+                    emotion = jsonObject["emotion"]?.jsonPrimitive?.content ?: "평범",
+                    emotionScore = jsonObject["emotionScore"]?.jsonPrimitive?.intOrNull ?: 3,
+                    difficultyLevel = jsonObject["difficultyLevel"]?.jsonPrimitive?.content ?: "NORMAL",
+                    feedback = jsonObject["feedback"]?.jsonPrimitive?.content ?: "오늘도 수고하셨어요!",
+                    tags = jsonObject["tags"]?.let {
+                        json.decodeFromJsonElement(ListSerializer(serializer<String>()), it)
+                    } ?: emptyList()
+                )
             )
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            e.printStackTrace()
-            // 에러 발생 시 기본값 반환 혹은 에러 전파
-            // 현재는 기본값을 반환
-            // TODO 어떻게 처리할진 더 고민
-             return TilAnalysisResult(
-                emotion = "분석 실패",
-                emotionScore = 3,
-                difficultyLevel = "NORMAL",
-                feedback = "AI 분석에 실패했지만, 꾸준한 기록은 훌륭해요! 👍",
-                tags = emptyList()
-            )
+            Result.failure(e)
         }
     }
 }

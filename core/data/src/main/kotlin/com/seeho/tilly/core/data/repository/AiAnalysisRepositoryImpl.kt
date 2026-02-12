@@ -13,17 +13,17 @@ class AiAnalysisRepositoryImpl @Inject constructor(
         learned: String,
         difficulty: String?,
         tomorrow: String?
-    ): AiAnalysisResult {
-        // OpenAIService 호출
-        val result = openAIService.analyzeTil(title, learned, difficulty, tomorrow)
-        
-        // Network Model -> Domain/Core Model 변환
-        return AiAnalysisResult(
-            tags = result.tags,
-            emotion = result.emotion,
-            emotionScore = result.emotionScore,
-            difficultyLevel = result.difficultyLevel,
-            feedback = result.feedback
-        )
+    ): Result<AiAnalysisResult> {
+        // OpenAIService 호출 후 Network Model → Domain Model 변환
+        return openAIService.analyzeTil(title, learned, difficulty, tomorrow)
+            .map { result ->
+                AiAnalysisResult(
+                    tags = result.tags,
+                    emotion = result.emotion,
+                    emotionScore = result.emotionScore,
+                    difficultyLevel = result.difficultyLevel,
+                    feedback = result.feedback
+                )
+            }
     }
 }

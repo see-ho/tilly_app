@@ -8,5 +8,5 @@ interface AiAnalysisRepository {
         learned: String,
         difficulty: String?,
         tomorrow: String?
-    ): AiAnalysisResult
+    ): Result<AiAnalysisResult>
 }
