@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class EditorViewModel @Inject constructor(
@@ -91,22 +92,21 @@ class EditorViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isAnalyzing = true) }
-            
+
+            // AI 분석 — Result로 성공/실패 구분
             val analysisResult = try {
                 analyzeTilUseCase(
                     title = state.title,
                     learned = state.todayLearning,
                     difficulty = state.difficulties.ifBlank { null },
                     tomorrow = state.tomorrowPlan.ifBlank { null }
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
+                ).getOrNull() // 실패 시 null → TIL 자체는 분석 없이 저장
+            } catch (e: CancellationException) {
+                throw e
             } finally {
-                _uiState.update { it.copy(isAnalyzing = false) }
+                _uiState.update { it.copy(isAnalyzing = false, isSaving = true) }
             }
 
-            _uiState.update { it.copy(isSaving = true) }
             try {
                 // 수정 모드이면 기존 createdAt 사용, 없으면 현재 시간
                 val createdAt = state.createdAt ?: System.currentTimeMillis()
@@ -134,9 +134,11 @@ class EditorViewModel @Inject constructor(
                 }
 
                 _event.emit(EditorEvent.SaveSuccess(savedId))
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                // TODO 에러 처리
                 e.printStackTrace()
+                _event.emit(EditorEvent.SaveFailed)
             } finally {
                 _uiState.update { it.copy(isSaving = false) }
             }

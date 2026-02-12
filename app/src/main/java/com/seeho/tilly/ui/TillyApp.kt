@@ -96,7 +96,7 @@ fun TillyApp(
                 editorScreen(
                     onBackClick = { appState.navController.popBackStack() },
                     onShowDetail = { tilId ->
-                        appState.navController.navigate(TilDetail(tilId)) {
+                        appState.navController.navigate(TilDetail(tilId, fromSave = true)) {
                             popUpTo<EditorRoute> { inclusive = true }
                             launchSingleTop = true
                         }

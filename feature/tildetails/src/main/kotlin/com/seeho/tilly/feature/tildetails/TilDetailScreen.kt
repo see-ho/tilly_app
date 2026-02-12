@@ -18,13 +18,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,7 +48,16 @@ fun TilDetailScreen(
     onBackClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onEditClick: (Long) -> Unit,
+    fromSave: Boolean = false,
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // 저장 후 진입 시 스낵바 표시
+    LaunchedEffect(fromSave) {
+        if (fromSave) {
+            snackbarHostState.showSnackbar("TIL이 저장되었습니다!")
+        }
+    }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // 삭제 성공 이벤트 수신 → 화면 종료
@@ -85,6 +99,7 @@ fun TilDetailScreen(
                 onBackClick = onBackClick,
                 onDeleteClick = viewModel::onDelete,
                 onEditClick = { onEditClick(state.til.id) },
+                snackbarHostState = snackbarHostState,
             )
         }
     }
@@ -97,8 +112,18 @@ fun TilDetailContent(
     onDeleteClick: () -> Unit,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = Color.Black,
+                    contentColor = Color.White,
+                )
+            }
+        },
         topBar = {
             TillyTopAppBar(
                 titleText = "TIL Details",

@@ -1,6 +1,8 @@
 package com.seeho.tilly.core.data.di
 
+import com.seeho.tilly.core.data.repository.AiAnalysisRepositoryImpl
 import com.seeho.tilly.core.data.repository.TilRepositoryImpl
+import com.seeho.tilly.core.domain.repository.AiAnalysisRepository
 import com.seeho.tilly.core.domain.repository.TilRepository
 import dagger.Binds
 import dagger.Module
@@ -20,4 +22,9 @@ abstract class DataModule {
     abstract fun bindTilRepository(
         impl: TilRepositoryImpl,
     ): TilRepository
+    @Binds
+    @Singleton
+    abstract fun bindAiAnalysisRepository(
+        aiAnalysisRepositoryImpl: AiAnalysisRepositoryImpl,
+    ): AiAnalysisRepository
 }

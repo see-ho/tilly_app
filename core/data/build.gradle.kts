@@ -12,4 +12,5 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:domain"))
     implementation(project(":core:database"))
+    implementation(project(":core:network"))
 }

@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 sealed interface NavigationRoute
 
 @Serializable
-data class TilDetail(val tilId: Long) : NavigationRoute
+data class TilDetail(val tilId: Long, val fromSave: Boolean = false) : NavigationRoute
