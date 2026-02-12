@@ -17,7 +17,7 @@ android {
         val properties = Properties()
         val localPropertiesFile = project.rootProject.file("local.properties")
         if (localPropertiesFile.exists()) {
-            properties.load(localPropertiesFile.inputStream())
+            localPropertiesFile.inputStream().use { properties.load(it) }
         }
 
         buildConfigField(
