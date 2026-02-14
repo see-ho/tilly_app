@@ -39,6 +39,7 @@ val NeoGray100 = Color(0xFFECECF0)
 val NeoGray200 = Color(0xFFE9EBEF)
 val NeoGray300 = Color(0xFFCBCED4)
 val NeoGray400 = Color(0xFF717182)
+val NeoSubtext = Color(0xFF99A0AF) // 차트 보조 텍스트, 지시선 등
 
 // Semantic Colors
 val NeoDestructive = Color(0xFFD4183D)
@@ -126,17 +127,33 @@ val EmotionLevel3 = Color(0xFF71B666)
 val EmotionLevel4 = Color(0xFF86B868)
 val EmotionLevel5 = Color(0xFFDAC670)  // 최고
 
+// Emotion Enum Colors
+val EmotionAchievement = Color(0xFF4CAF50)
+val EmotionSatisfaction = Color(0xFF2196F3)
+val EmotionNormal = Color(0xFF9E9E9E)
+val EmotionHard = Color(0xFFFF9800)
+val EmotionFrustration = Color(0xFFF44336)
+
 // Difficulty Colors
 val DifficultyEasy = Color(0xFF4CAF50)
-val DifficultyMedium = Color(0xFFFFEB3B)
+val DifficultyNormal = Color(0xFFFFEB3B)
 val DifficultyHard = Color(0xFFFF9800)
 val DifficultyVeryHard = Color(0xFFF44336)
 
 // ============================================
 // Chart Colors (for Statistics)
 // ============================================
-val ChartColor1 = Color(0xFFFF6384)
-val ChartColor2 = Color(0xFF36A2EB)
-val ChartColor3 = Color(0xFFFFCE56)
-val ChartColor4 = Color(0xFF4BC0C0)
-val ChartColor5 = Color(0xFF9966FF)
+val ChartGreen = Color(0xFF00E676)
+val ChartCyan = Color(0xFF8BE9FD)
+val ChartPurple = Color(0xFFBD93F9)
+val ChartPink = Color(0xFFFF79C6)
+val ChartOrange = Color(0xFFFFB86C)
+val ChartBlue = Color(0xFF36A2EB)
+val ChartYellow = Color(0xFFF1FA8C)
+val ChartRed = Color(0xFFFF5555)
+
+// 차트용 컬러 팔레트
+val ChartPalette = listOf(
+    ChartGreen, ChartCyan, ChartPurple, ChartPink,
+    ChartOrange, ChartBlue, ChartYellow, ChartRed,
+)
