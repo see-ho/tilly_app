@@ -2,6 +2,8 @@ package com.seeho.tilly.core.data.repository
 
 import com.seeho.tilly.core.domain.repository.AiAnalysisRepository
 import com.seeho.tilly.core.model.AiAnalysisResult
+import com.seeho.tilly.core.model.Difficulty
+import com.seeho.tilly.core.model.Emotion
 import com.seeho.tilly.core.network.OpenAIService
 import javax.inject.Inject
 
@@ -19,9 +21,9 @@ class AiAnalysisRepositoryImpl @Inject constructor(
             .map { result ->
                 AiAnalysisResult(
                     tags = result.tags,
-                    emotion = result.emotion,
+                    emotion = Emotion.fromLabel(result.emotion),
                     emotionScore = result.emotionScore,
-                    difficultyLevel = result.difficultyLevel,
+                    difficultyLevel = Difficulty.fromLabel(result.difficultyLevel),
                     feedback = result.feedback
                 )
             }
