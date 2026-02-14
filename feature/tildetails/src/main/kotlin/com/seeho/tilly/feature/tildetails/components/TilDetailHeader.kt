@@ -22,9 +22,7 @@ import com.seeho.tilly.core.designsystem.component.TillyCard
 import com.seeho.tilly.core.designsystem.component.TillyTag
 import com.seeho.tilly.core.model.Til
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.seeho.tilly.core.common.util.DateUtils
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -32,8 +30,7 @@ fun TilDetailHeader(
     til: Til,
     modifier: Modifier = Modifier,
 ) {
-    val dateFormatter = SimpleDateFormat("yyyy.MM.dd HH:mm a", Locale.getDefault())
-    val formattedDate = remember(til.createdAt) { dateFormatter.format(Date(til.createdAt)) }
+    val formattedDate = remember(til.createdAt) { DateUtils.formatToDotDateTime(til.createdAt) }
 
     TillyCard(
         modifier = modifier.fillMaxWidth()

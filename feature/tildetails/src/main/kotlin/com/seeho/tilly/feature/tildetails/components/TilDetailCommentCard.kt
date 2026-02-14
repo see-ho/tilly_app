@@ -27,12 +27,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.seeho.tilly.core.designsystem.R
 import com.seeho.tilly.core.designsystem.component.EmotionScoreIndicator
-import com.seeho.tilly.core.designsystem.theme.DifficultyEasy
-import com.seeho.tilly.core.designsystem.theme.DifficultyHard
-import com.seeho.tilly.core.designsystem.theme.DifficultyMedium
-import com.seeho.tilly.core.designsystem.theme.DifficultyVeryHard
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
+import com.seeho.tilly.core.model.Difficulty
 import com.seeho.tilly.core.model.Til
+
+import com.seeho.tilly.core.designsystem.util.color
 
 @Composable
 fun TilDetailCommentCard(
@@ -41,8 +40,8 @@ fun TilDetailCommentCard(
 ) {
     val feedback = til.feedback ?: "분석된 내용이 없습니다."
     val emotionScore = til.emotionScore ?: 0
-    val difficultyLevel = til.difficultyLevel ?: "NORMAL"
-
+    val difficultyLevel = til.difficultyLevel ?: Difficulty.NORMAL
+    
     //TODO 감정 점수 별 틸리 2개 더(좌절, 보통) 등록
     val tillyIcon = when {
         emotionScore >= 4 -> R.drawable.ic_tilly_satisfied
@@ -50,21 +49,14 @@ fun TilDetailCommentCard(
         else -> R.drawable.ic_tilly_challenged
     }
 
-    val difficultyIcon = when (difficultyLevel.uppercase()) {
-        "EASY" -> R.drawable.ic_difficult_easy
-        "NORMAL" -> R.drawable.ic_difficult_normal
-        "HARD" -> R.drawable.ic_difficult_hard
-        "VERYHARD" -> R.drawable.ic_difficult_veryhard
-        else -> R.drawable.ic_difficult_normal
+    val difficultyIcon = when (difficultyLevel) {
+        Difficulty.EASY -> R.drawable.ic_difficult_easy
+        Difficulty.NORMAL -> R.drawable.ic_difficult_normal
+        Difficulty.HARD -> R.drawable.ic_difficult_hard
+        Difficulty.VERY_HARD -> R.drawable.ic_difficult_veryhard
     }
 
-    val difficultyColor = when (difficultyLevel.uppercase()) {
-        "EASY" -> DifficultyEasy
-        "NORMAL" -> DifficultyMedium
-        "HARD" -> DifficultyHard
-        "VERYHARD" ->DifficultyVeryHard
-        else -> DifficultyMedium
-    }
+    val difficultyColor = difficultyLevel.color
 
 
     Surface(
@@ -132,7 +124,7 @@ fun TilDetailCommentCard(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             EmotionScoreIndicator(
-                                score = emotionScore * 2,
+                                score = emotionScore,
                                 blockWidth = 20.dp,
                                 blockHeight = 12.dp
                             )
@@ -140,7 +132,7 @@ fun TilDetailCommentCard(
                             Spacer(modifier = Modifier.weight(1f))
                             
                             Text(
-                                text = "${emotionScore * 2}/10",
+                                text = "${emotionScore}/5",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -161,7 +153,7 @@ fun TilDetailCommentCard(
                             )
                             Spacer(modifier = Modifier.width(2.dp))
                             Text(
-                                text = difficultyLevel.uppercase(),
+                                text = difficultyLevel.displayName,
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                                 color = difficultyColor
                             )
@@ -183,7 +175,7 @@ private fun TilDetailCommentCardPreview() {
                     title = "Test",
                     learned = "Test",
                     emotionScore = 4,
-                    difficultyLevel = "HARD",
+                    difficultyLevel = Difficulty.HARD,
                     feedback = "정말 잘했는데요? 상태 관리를 공부했군요. 난이도가 어려운데 잘 해낸 것 같아요. 앞으로도 화이팅해봐요!",
                     createdAt = 0
                 ),
