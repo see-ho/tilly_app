@@ -3,6 +3,7 @@ package com.seeho.tilly.core.database.di
 import android.content.Context
 import androidx.room.Room
 import com.seeho.tilly.core.database.TillyDatabase
+import com.seeho.tilly.core.database.dao.RetrospectiveDao
 import com.seeho.tilly.core.database.dao.TilDao
 import dagger.Module
 import dagger.Provides
@@ -13,9 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import javax.inject.Singleton
 
-/**
- * Hilt DI 모듈: TillyDatabase와 TilDao를 싱글톤으로 제공
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
@@ -29,7 +27,8 @@ object DatabaseModule {
             context,
             TillyDatabase::class.java,
             "tilly_database",
-        ).setQueryExecutor(Dispatchers.IO.asExecutor())
+        ).fallbackToDestructiveMigration()  //  TODO 출시 후 삭제,  Migration으로 교체
+            .setQueryExecutor(Dispatchers.IO.asExecutor())
             .setTransactionExecutor(Dispatchers.IO.asExecutor())
             .build()
     }
@@ -37,5 +36,10 @@ object DatabaseModule {
     @Provides
     fun provideTilDao(database: TillyDatabase): TilDao {
         return database.tilDao()
+    }
+
+    @Provides
+    fun provideRetrospectiveDao(database: TillyDatabase): RetrospectiveDao {
+        return database.retrospectiveDao()
     }
 }
