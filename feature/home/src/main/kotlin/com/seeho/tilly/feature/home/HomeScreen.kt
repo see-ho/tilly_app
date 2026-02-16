@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,6 +41,7 @@ fun HomeScreen(
         onDeleteClick = viewModel::showDeleteDialog,
         onEditorClick = onEditorClick,
         onShopClick = onShopClick,
+        onGenerateRandomTils = viewModel::generateRandomTils,
     )
 
     if (deletingTilId != null) {
@@ -60,6 +63,7 @@ fun HomeContent(
     onDeleteClick: (Long) -> Unit,
     onEditorClick: () -> Unit,
     onShopClick: () -> Unit,
+    onGenerateRandomTils: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     // UI 렌더링만 담당 (Stateless)
@@ -85,15 +89,32 @@ fun HomeContent(
             }
             is HomeUiState.Empty -> {
                 // 빈 상태: TIL이 없을 때
-                TilFeed(
-                    tils = emptyList(),
-                    onTilClick = onTilClick,
-                    onDelete = onDeleteClick,
-                    onShopClick = onShopClick,
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding),
-                )
+                ) {
+                    TilFeed(
+                        tils = emptyList(),
+                        onTilClick = onTilClick,
+                        onDelete = onDeleteClick,
+                        onShopClick = onShopClick,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    if (BuildConfig.DEBUG) {
+                        Button(
+                            onClick = onGenerateRandomTils,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 80.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary,
+                            ),
+                        ) {
+                            Text("랜덤 TIL 5개 생성")
+                        }
+                    }
+                }
             }
             is HomeUiState.Success -> {
                 TilFeed(
