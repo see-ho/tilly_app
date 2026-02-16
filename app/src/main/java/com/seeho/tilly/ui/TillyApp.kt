@@ -39,8 +39,15 @@ fun TillyApp(
 ) {
     Scaffold(
         topBar = {
-            if (appState.currentTopLevelDestination != null) {
+            val topLevelDestination = appState.currentTopLevelDestination
+            if (topLevelDestination != null) {
                 TillyTopAppBar(
+                    titleText = when (topLevelDestination) {
+                        TopLevelDestination.STATISTICS -> "Statistics"
+                        TopLevelDestination.HOME -> "TILLY"
+                        TopLevelDestination.REPORT -> "Report"
+                        else -> "TILLY"
+                    },
                     onSettingsClick = { /* TODO: 설정 화면*/ }
                 )
             }
