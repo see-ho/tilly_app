@@ -1,6 +1,8 @@
 package com.seeho.tilly.feature.statistics
 
 import androidx.compose.ui.graphics.Color
+import com.seeho.tilly.core.model.Difficulty
+import com.seeho.tilly.core.model.MonthlyRetrospective
 import java.time.LocalDate
 
 /**
@@ -10,7 +12,7 @@ data class StatisticsUiState(
     // 월 선택기 상태
     val currentMonth: Int = LocalDate.now().monthValue,
     val currentYear: Int = LocalDate.now().year,
-    val tilCount: Int = 3,
+    val tilCount: Int = 0,
     val canGoNext: Boolean = false,
     
     // 데이터 로딩 상태
@@ -26,10 +28,16 @@ data class StatisticsUiState(
     // 감정 분포 데이터 (도넛 차트)
     val emotionDistribution: List<EmotionDistributionItem> = emptyList(),
 
+    // 난이도 분포 (회고 카드용)
+    val difficultyDistribution: List<DifficultyDistributionItem> = emptyList(),
+
+    // 월간 평균 감정 점수
+    val averageEmotionScore: Float = 0f,
+
     // 월간 회고
-    val retrospectiveText: String = "",
+    val retrospective: MonthlyRetrospective? = null,
     val isRetrospectiveLoading: Boolean = false,
-    val hasRetrospective: Boolean = false,
+    val retrospectiveError: String? = null,
 )
 
 /**
@@ -59,3 +67,11 @@ data class EmotionDistributionItem(
     val color: Color,     // 차트 색상
 )
 
+/**
+ * 난이도 분포 아이템
+ */
+data class DifficultyDistributionItem(
+    val difficulty: Difficulty,
+    val count: Int,
+    val color: Color,
+)

@@ -15,6 +15,7 @@ import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +27,7 @@ import com.seeho.tilly.feature.statistics.component.emotiondistribution.EmotionD
 import com.seeho.tilly.feature.statistics.component.emotiontrendchart.EmotionTrendChart
 import com.seeho.tilly.feature.statistics.component.learningkeyword.LearningKeywordChart
 import com.seeho.tilly.feature.statistics.component.monthselector.MonthSelector
-import com.seeho.tilly.feature.statistics.component.retrospective.MonthlyRetrospective
+import com.seeho.tilly.feature.statistics.component.retrospective.MonthlyRetrospectiveSection
 
 @Composable
 fun StatisticsScreen(
@@ -52,11 +53,20 @@ private fun StatisticsContent(
     onGenerateRetrospective: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scrollState = rememberScrollState()
+
+    // 회고가 생성 완료되면 하단으로 자동 스크롤
+    LaunchedEffect(uiState.retrospective) {
+        if (uiState.retrospective != null) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
             // Month Selector
@@ -120,15 +130,18 @@ private fun StatisticsContent(
                 }
 
                 // 4. 월간 회고
-                MonthlyRetrospective(
+                MonthlyRetrospectiveSection(
                     month = uiState.currentMonth,
                     year = uiState.currentYear,
+                    tilCount = uiState.tilCount,
+                    averageEmotionScore = uiState.averageEmotionScore,
+                    retrospective = uiState.retrospective,
+                    difficultyDistribution = uiState.difficultyDistribution,
                     isLoading = uiState.isRetrospectiveLoading,
-                    hasRetrospective = uiState.hasRetrospective,
+                    error = uiState.retrospectiveError,
                     onGenerateClick = onGenerateRetrospective,
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
             }
     }
 }
-

@@ -3,7 +3,10 @@ package com.seeho.tilly.feature.statistics
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seeho.tilly.core.common.util.DateUtils
+import com.seeho.tilly.core.domain.GenerateRetrospectiveUseCase
 import com.seeho.tilly.core.domain.GetAllTilsUseCase
+import com.seeho.tilly.core.domain.repository.AiAnalysisRepository
+import com.seeho.tilly.core.model.Difficulty
 import com.seeho.tilly.core.model.Emotion
 import com.seeho.tilly.core.model.Til
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,38 +14,48 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
-import com.seeho.tilly.core.designsystem.util.color
 import com.seeho.tilly.core.designsystem.theme.ChartPalette
 import com.seeho.tilly.core.designsystem.theme.NeoSubtext
+import com.seeho.tilly.core.designsystem.util.color
 
-/**
- * Statistics 화면 ViewModel
- * 실제 데이터 연동
- */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
     private val getAllTilsUseCase: GetAllTilsUseCase,
+    private val generateRetrospectiveUseCase: GenerateRetrospectiveUseCase,
+    private val aiAnalysisRepository: AiAnalysisRepository,
 ) : ViewModel() {
 
     private val _currentMonthState = MutableStateFlow(CurrentMonthState())
 
-    // DB에서 모든 TIL 데이터를 가져와 UI 상태로 매핑
+    // 회고 로딩/에러 상태 (combine 외부에서 관리)
+    private val _retrospectiveLoadingState = MutableStateFlow(RetrospectiveLoadingState())
+
+    // 월이 바뀔 때마다 해당 월의 회고를 Room에서 조회
+    private val retrospectiveFlow = _currentMonthState.flatMapLatest { state ->
+        aiAnalysisRepository.getRetrospective(state.month, state.year)
+    }
+
     val uiState: StateFlow<StatisticsUiState> = combine(
         _currentMonthState,
         getAllTilsUseCase(),
-    ) { monthState, tils ->
+        retrospectiveFlow,
+        _retrospectiveLoadingState,
+    ) { monthState, tils, retrospective, loadingState ->
         val (month, year) = monthState
 
-        // 이번 달 데이터 필터링
         val currentMonthTils = tils.filter {
             val date = DateUtils.timestampToLocalDate(it.createdAt)
             date.monthValue == month && date.year == year
         }
 
-        // 해당 월의 총 일수 계산
         val daysInMonth = java.time.YearMonth.of(year, month).lengthOfMonth()
 
         StatisticsUiState(
@@ -61,9 +74,18 @@ class StatisticsViewModel @Inject constructor(
             
             // 감정 분포 (이번 달)
             emotionDistribution = mapToEmotionDistribution(currentMonthTils),
-            
-            retrospectiveText = "${year}년 ${month}월 학습 회고",
-            hasRetrospective = currentMonthTils.isNotEmpty(),
+
+            difficultyDistribution = mapToDifficultyDistribution(currentMonthTils),
+
+            // 평균 감정 점수 계산
+            averageEmotionScore = currentMonthTils
+                .mapNotNull { it.emotionScore }
+                .takeIf { it.isNotEmpty() }
+                ?.average()?.toFloat() ?: 0f,
+
+            retrospective = retrospective,
+            isRetrospectiveLoading = loadingState.isLoading,
+            retrospectiveError = loadingState.error,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -71,7 +93,6 @@ class StatisticsViewModel @Inject constructor(
         initialValue = StatisticsUiState()
     )
 
-    // 이전 달로 이동
     fun onPreviousMonth() {
         _currentMonthState.value = _currentMonthState.value.let { state ->
             if (state.month == 1) {
@@ -82,7 +103,6 @@ class StatisticsViewModel @Inject constructor(
         }
     }
 
-    // 다음 달로 이동
     fun onNextMonth() {
         _currentMonthState.value = _currentMonthState.value.let { state ->
             if (state.month == 12) {
@@ -93,18 +113,42 @@ class StatisticsViewModel @Inject constructor(
         }
     }
 
-    // 월간 회고 생성
+    // 월간 회고 생성 (GPT 호출)
     fun onGenerateRetrospective() {
-        // TODO: AI 기반 월간 회고 생성 로직 구현
+        val state = _currentMonthState.value
+        viewModelScope.launch {
+            _retrospectiveLoadingState.update { it.copy(isLoading = true, error = null) }
+
+            // 현재 월의 TIL 데이터를 가져오기
+            val currentTils = getAllTilsUseCase().first().filter { til ->
+                val date = DateUtils.timestampToLocalDate(til.createdAt)
+                date.monthValue == state.month && date.year == state.year
+            }
+
+            if (currentTils.isEmpty()) {
+                _retrospectiveLoadingState.update {
+                    it.copy(isLoading = false, error = "이번 달에 작성한 TIL이 없어요")
+                }
+                return@launch
+            }
+
+            generateRetrospectiveUseCase(state.month, state.year, currentTils)
+                .onSuccess {
+                    _retrospectiveLoadingState.update { it.copy(isLoading = false, error = null) }
+                }
+                .onFailure { e ->
+                    _retrospectiveLoadingState.update {
+                        it.copy(isLoading = false, error = e.message ?: "회고 생성에 실패했어요")
+                    }
+                }
+        }
     }
 
-    // 현재 월 또는 미래 월인지 확인
     private fun isCurrentOrFuture(month: Int, year: Int): Boolean {
         val now = LocalDate.now()
         return year > now.year || (year == now.year && month >= now.monthValue)
     }
 
-    // TIL 데이터를 감정 추세 데이터로 변환 (일별 감정 점수)
     private fun mapToEmotionTrend(month: Int, year: Int, tils: List<Til>): List<EmotionTrendItem> {
         return tils
             .filter {
@@ -174,6 +218,22 @@ class StatisticsViewModel @Inject constructor(
             )
         }
     }
+
+    // TIL 난이도 데이터를 난이도 분포 데이터로 변환
+    private fun mapToDifficultyDistribution(tils: List<Til>): List<DifficultyDistributionItem> {
+        val difficultyCounts = tils
+            .map { it.difficultyLevel ?: Difficulty.NORMAL }
+            .groupingBy { it }
+            .eachCount()
+
+        return Difficulty.entries.map { difficulty ->
+            DifficultyDistributionItem(
+                difficulty = difficulty,
+                count = difficultyCounts[difficulty] ?: 0,
+                color = difficulty.color,
+            )
+        }
+    }
 }
 
 data class CurrentMonthState(
@@ -181,3 +241,7 @@ data class CurrentMonthState(
     val year: Int = LocalDate.now().year
 )
 
+data class RetrospectiveLoadingState(
+    val isLoading: Boolean = false,
+    val error: String? = null,
+)
