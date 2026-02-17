@@ -72,12 +72,19 @@ class ShopRepositoryImpl @Inject constructor(
         // CoinRepository를 통해 코인 차감 (잔액 부족 시 false 반환)
         if (!coinRepository.deductCoins(price)) return false
 
-        shopDao.purchaseItem(
-            PurchasedItemEntity(
-                itemId = itemId,
-                purchasedAt = System.currentTimeMillis(),
+        // 구매 기록 저장 — 실패 시 코인 복구(롤백)
+        try {
+            shopDao.purchaseItem(
+                PurchasedItemEntity(
+                    itemId = itemId,
+                    purchasedAt = System.currentTimeMillis(),
+                )
             )
-        )
+        } catch (e: Exception) {
+            // 구매 기록 실패 → 차감된 코인 복구
+            coinRepository.addCoins(price)
+            return false
+        }
         return true
     }
 
