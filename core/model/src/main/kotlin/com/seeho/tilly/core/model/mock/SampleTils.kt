@@ -1,5 +1,6 @@
 package com.seeho.tilly.core.model.mock
 
+import com.seeho.tilly.core.model.Difficulty
 import com.seeho.tilly.core.model.Til
 
 val sampleTils = listOf(
@@ -11,7 +12,7 @@ val sampleTils = listOf(
         tomorrow = "내일은 사용자 입력 폼이 있는 더 복잡한 예제를 구현할 계획이다.\n계산된 상태를 위한 derivedStateOf도 알아볼 예정이다.\n람다 캡처 처리를 위한 rememberUpdatedState도 공부하고 싶다.",
         tags = listOf("jetpack compose", "viewmodel", "kotlin"),
         emotionScore = 4,
-        difficultyLevel = "HARD",
+        difficultyLevel = Difficulty.HARD,
         createdAt = 1770597018045L
     ),
     Til(
@@ -22,7 +23,7 @@ val sampleTils = listOf(
         tomorrow = "커스텀 스코프에 대해 더 알아볼 예정입니다.",
         tags = listOf("hilt", "di", "android"),
         emotionScore = 5,
-        difficultyLevel = "NORMAL",
+        difficultyLevel = Difficulty.NORMAL,
         createdAt = 1770510618045L
     )
 )

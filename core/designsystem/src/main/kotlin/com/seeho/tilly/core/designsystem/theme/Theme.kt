@@ -184,7 +184,7 @@ internal val TillyGreenDarkScheme = darkColorScheme(
     background = NeoDarkBase,
     onBackground = Color(0xFFFCFCFC),
 
-    surface = NeoDarkBase,
+    surface = NeoDarkSurface,
     onSurface = Color(0xFFFCFCFC),
     surfaceVariant = NeoDarkSurface,
     onSurfaceVariant = Color(0xFFB5B5B5),
@@ -218,7 +218,7 @@ internal val DraculaDarkScheme = darkColorScheme(
     background = DraculaBackground,
     onBackground = DraculaForeground,
 
-    surface = DraculaBackground,
+    surface = DraculaCurrentLine,  // background(#282A36)보다 밝은 #44475A로 카드 배경 구분
     onSurface = DraculaForeground,
     surfaceVariant = DraculaCurrentLine,
     onSurfaceVariant = DraculaForeground,
@@ -252,7 +252,7 @@ internal val MonokaiDarkScheme = darkColorScheme(
     background = MonokaiBackground,
     onBackground = MonokaiForeground,
 
-    surface = MonokaiBackground,
+    surface = Color(0xFF363731),  // background(#272822)보다 밝은 색으로 카드 배경 구분
     onSurface = MonokaiForeground,
     surfaceVariant = MonokaiBlack,
     onSurfaceVariant = MonokaiForeground,
@@ -286,7 +286,7 @@ internal val OneDarkDarkScheme = darkColorScheme(
     background = OneDarkBackground,
     onBackground = OneDarkForeground,
 
-    surface = OneDarkBackground,
+    surface = Color(0xFF2C313A),  // background(#282C34)보다 밝은 색으로 카드 배경 구분
     onSurface = OneDarkForeground,
     surfaceVariant = OneDarkBlack,
     onSurfaceVariant = OneDarkForeground,
@@ -320,7 +320,7 @@ internal val NordDarkScheme = darkColorScheme(
     background = NordPolarNight0,
     onBackground = NordSnowStorm2,
 
-    surface = NordPolarNight0,
+    surface = NordPolarNight1,  // background(#2E3440)보다 밝은 #3B4252로 카드 배경 구분
     onSurface = NordSnowStorm2,
     surfaceVariant = NordPolarNight1,
     onSurfaceVariant = NordSnowStorm0,
@@ -354,7 +354,7 @@ internal val GruvboxDarkScheme = darkColorScheme(
     background = GruvboxBackground,
     onBackground = GruvboxForeground,
 
-    surface = GruvboxBackground,
+    surface = Color(0xFF32302F),  // background(#282828)보다 밝은 색으로 카드 배경 구분
     onSurface = GruvboxForeground,
     surfaceVariant = GruvboxBackgroundHard,
     onSurfaceVariant = GruvboxForeground,

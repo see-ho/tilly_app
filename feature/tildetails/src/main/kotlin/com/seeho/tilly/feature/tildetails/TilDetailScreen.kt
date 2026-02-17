@@ -37,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
 import com.seeho.tilly.core.designsystem.component.TillyTopAppBar
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
+import com.seeho.tilly.core.model.Difficulty
 import com.seeho.tilly.core.model.Til
 import com.seeho.tilly.feature.tildetails.components.TilDetailCommentCard
 import com.seeho.tilly.feature.tildetails.components.TilDetailHeader
@@ -220,7 +221,7 @@ private fun TilDetailScreenPreview() {
         tomorrow = "내일은 더 복잡한 예제를 구현할 계획이다.",
         tags = listOf("jetpack compose", "viewmodel"),
         emotionScore = 4,
-        difficultyLevel = "HARD",
+        difficultyLevel = Difficulty.HARD,
         createdAt = System.currentTimeMillis(),
     )
     TillyTheme {

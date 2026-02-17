@@ -4,6 +4,9 @@ plugins {
 
 android {
     namespace = "com.seeho.tilly.feature.home"
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {

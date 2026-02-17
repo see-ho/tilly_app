@@ -25,13 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
+import com.seeho.tilly.core.model.Difficulty
 import com.seeho.tilly.core.model.Til
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.seeho.tilly.core.common.util.DateUtils
 
 @Composable
 fun TilFeed(
@@ -41,9 +39,6 @@ fun TilFeed(
     onShopClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // 날짜 포맷터 (timestamp → "2026.02.10" 형태)
-    val dateFormat = remember { SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()) }
-
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(bottom = 16.dp),
@@ -65,7 +60,7 @@ fun TilFeed(
         ) { til ->
             Column {
                 Text(
-                    text = dateFormat.format(Date(til.createdAt)),
+                    text = DateUtils.formatToDotDate(til.createdAt),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(
@@ -117,6 +112,7 @@ fun TilFeed(
                         TilFeedItem(
                             title = til.title,
                             emotionScore = til.emotionScore ?: 3,
+                            difficultyLevel = til.difficultyLevel ?: Difficulty.NORMAL,
                             tags = til.tags,
                             content = til.learned,
                             onClick = { onTilClick(til.id) },

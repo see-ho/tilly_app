@@ -25,23 +25,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.seeho.tilly.core.designsystem.component.EmotionScoreIndicator
 import com.seeho.tilly.core.designsystem.component.TillyCard
 import com.seeho.tilly.core.designsystem.component.TillyTag
+import com.seeho.tilly.core.designsystem.theme.TillyTheme
+import com.seeho.tilly.core.designsystem.util.iconRes
+import com.seeho.tilly.core.model.Difficulty
 
 @Composable
 fun TilFeedItem(
     title: String,
     emotionScore: Int,
+    difficultyLevel: Difficulty,
     tags: List<String>,
     content: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val difficultyRes = when (emotionScore) {
-        1, 2 -> com.seeho.tilly.core.designsystem.R.drawable.ic_difficult_easy
-        3 -> com.seeho.tilly.core.designsystem.R.drawable.ic_difficult_normal
-        4 -> com.seeho.tilly.core.designsystem.R.drawable.ic_difficult_hard
-        5 -> com.seeho.tilly.core.designsystem.R.drawable.ic_difficult_veryhard
-        else -> com.seeho.tilly.core.designsystem.R.drawable.ic_difficult_normal
-    }
+    // EnumResources의 확장 프로퍼티로 난이도 아이콘 결정
+    val difficultyRes = difficultyLevel.iconRes
 
     TillyCard(
         modifier = modifier.fillMaxWidth(),
@@ -94,12 +93,13 @@ fun TilFeedItem(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun TilEntryItemPreview() {
-    com.seeho.tilly.core.designsystem.theme.TillyTheme {
+    TillyTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             androidx.compose.foundation.layout.Box(modifier = Modifier.padding(16.dp)) {
                 TilFeedItem(
                     title = "Preview TIL Title",
                     emotionScore = 4,
+                    difficultyLevel = Difficulty.HARD,
                     tags = listOf("jetpack", "compose", "ui"),
                     content = "This is a preview content for the TIL entry item. It shows how the title and tags are rendered.",
                     onClick = {}

@@ -4,6 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seeho.tilly.core.domain.DeleteTilUseCase
 import com.seeho.tilly.core.domain.GetAllTilsUseCase
+import com.seeho.tilly.core.domain.SaveTilUseCase
+import com.seeho.tilly.core.model.Difficulty
+import com.seeho.tilly.core.model.Emotion
+import com.seeho.tilly.core.model.Til
 import kotlinx.coroutines.launch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class HomeViewModel @Inject constructor(
     getAllTilsUseCase: GetAllTilsUseCase,
     private val deleteTilUseCase: DeleteTilUseCase,
+    private val saveTilUseCase: SaveTilUseCase,
 ) : ViewModel() {
 
     /**
@@ -67,6 +72,47 @@ class HomeViewModel @Inject constructor(
             } catch (e: Exception) {
                 // 에러 처리는 UI State에서 Error로 전파되거나 별도 이벤트로 처리
                 e.printStackTrace()
+            }
+        }
+    }
+
+    // ========== 디버그용: 랜덤 TIL 데이터 생성 ==========
+
+    fun generateRandomTils() {
+        val sampleData = listOf(
+            Triple("Compose Navigation 학습", "Navigation 컴포넌트를 활용한 화면 전환을 배웠다", listOf("Compose", "Navigation")),
+            Triple("Room DB 마이그레이션", "Room 데이터베이스 마이그레이션 전략을 학습했다", listOf("Room", "Database", "Migration")),
+            Triple("Coroutine Flow 심화", "SharedFlow와 StateFlow의 차이를 이해했다", listOf("Coroutine", "Flow", "Kotlin")),
+            Triple("Hilt 모듈 구성", "멀티모듈 프로젝트에서 Hilt 구성 방법을 익혔다", listOf("Hilt", "DI", "Multi-Module")),
+            Triple("Material3 테마 커스텀", "다크모드 대응 색상 시스템을 구축했다", listOf("Material3", "Theme", "Design-System")),
+        )
+
+        val difficulties = Difficulty.entries
+        val emotions = Emotion.entries
+
+        viewModelScope.launch {
+            sampleData.forEachIndexed { index, (title, learned, tags) ->
+                val difficulty = difficulties[index % difficulties.size]
+                val emotion = emotions[index % emotions.size]
+                val emotionScore = (index % 5) + 1
+
+                val now = java.time.LocalDate.now()
+                val tilDate = now.withDayOfMonth((index * 3 + 1).coerceAtMost(now.lengthOfMonth()))
+                val createdAt = tilDate.atStartOfDay(java.time.ZoneId.systemDefault())
+                    .toInstant().toEpochMilli()
+
+                val til = Til(
+                    title = title,
+                    learned = learned,
+                    difficulty = "연습용 어려웠던 점",
+                    tags = tags,
+                    emotion = emotion,
+                    emotionScore = emotionScore,
+                    difficultyLevel = difficulty,
+                    feedback = "잘 하고 있어요! $title 주제는 중요한 기초입니다. 🐾",
+                    createdAt = createdAt,
+                )
+                saveTilUseCase(til)
             }
         }
     }

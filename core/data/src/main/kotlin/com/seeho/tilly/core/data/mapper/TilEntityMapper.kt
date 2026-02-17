@@ -1,6 +1,8 @@
 package com.seeho.tilly.core.data.mapper
 
 import com.seeho.tilly.core.database.entity.TilEntity
+import com.seeho.tilly.core.model.Difficulty
+import com.seeho.tilly.core.model.Emotion
 import com.seeho.tilly.core.model.Til
 
 /**
@@ -16,9 +18,9 @@ fun TilEntity.toModel(): Til {
         difficulty = difficulty,
         tomorrow = tomorrow,
         tags = tags,
-        emotion = emotion,
+        emotion = emotion?.let { Emotion.fromLabel(it) },
         emotionScore = emotionScore,
-        difficultyLevel = difficultyLevel,
+        difficultyLevel = difficultyLevel?.let { Difficulty.fromLabel(it) },
         feedback = feedback,
         createdAt = createdAt,
         updatedAt = updatedAt,
@@ -34,9 +36,9 @@ fun Til.toEntity(): TilEntity {
         difficulty = difficulty,
         tomorrow = tomorrow,
         tags = tags,
-        emotion = emotion,
+        emotion = emotion?.label,
         emotionScore = emotionScore,
-        difficultyLevel = difficultyLevel,
+        difficultyLevel = difficultyLevel?.label,
         feedback = feedback,
         createdAt = createdAt,
         updatedAt = updatedAt,
