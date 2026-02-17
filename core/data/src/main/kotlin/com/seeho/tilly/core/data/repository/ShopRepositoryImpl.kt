@@ -10,6 +10,7 @@ import com.seeho.tilly.core.model.ItemCategory
 import com.seeho.tilly.core.model.ShopItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 /**
@@ -21,6 +22,9 @@ class ShopRepositoryImpl @Inject constructor(
     private val coinRepository: CoinRepository,
 ) : ShopRepository {
 
+    // 기본 장착 초기화 중복 방지 플래그
+    private var defaultEquipmentInitialized = false
+
     override fun getAllShopItems(): List<ShopItem> = ShopItemData.allItems
 
     override fun getPurchasedItemIds(): Flow<Set<String>> {
@@ -30,22 +34,28 @@ class ShopRepositoryImpl @Inject constructor(
     }
 
     override fun getEquippedItems(): Flow<Map<ItemCategory, String>> {
-        return shopDao.getEquippedItems().map { entities ->
+        return shopDao.getEquippedItems()
             // 초기 실행 시 equipped_items가 비어있으면 기본 아이템 자동 장착
-            if (entities.isEmpty()) {
-                initializeDefaultEquipment()
-            }
-
-            entities.associate { entity ->
-                // String → ItemCategory 변환
-                val category = try {
-                    ItemCategory.valueOf(entity.category)
-                } catch (e: IllegalArgumentException) {
-                    return@map emptyMap()
+            .onStart {
+                if (!defaultEquipmentInitialized) {
+                    defaultEquipmentInitialized = true
+                    val snapshot = shopDao.getEquippedItemsSnapshot()
+                    if (snapshot.isEmpty()) {
+                        initializeDefaultEquipment()
+                    }
                 }
-                category to entity.itemId
             }
-        }
+            .map { entities ->
+                // 잘못된 카테고리가 있는 entity만 건너뛰고 나머지는 유지
+                entities.mapNotNull { entity ->
+                    val category = try {
+                        ItemCategory.valueOf(entity.category)
+                    } catch (_: IllegalArgumentException) {
+                        return@mapNotNull null
+                    }
+                    category to entity.itemId
+                }.toMap()
+            }
     }
 
     /**

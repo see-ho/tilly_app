@@ -2,6 +2,7 @@ package com.seeho.tilly.core.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.seeho.tilly.core.database.entity.EquippedItemEntity
@@ -19,8 +20,8 @@ interface ShopDao {
     @Query("SELECT * FROM purchased_items")
     fun getAllPurchasedItems(): Flow<List<PurchasedItemEntity>>
 
-    /** 아이템 구매 기록 추가 */
-    @Insert
+    /** 아이템 구매 기록 추가 (중복 시 무시) */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun purchaseItem(item: PurchasedItemEntity)
 
     /** 특정 아이템 구매 여부 확인 */
@@ -30,6 +31,10 @@ interface ShopDao {
     /** 장착 중인 아이템 전체 조회 */
     @Query("SELECT * FROM equipped_items")
     fun getEquippedItems(): Flow<List<EquippedItemEntity>>
+
+    /** 장착 중인 아이템 일회성 스냅샷 조회 (초기화 체크용) */
+    @Query("SELECT * FROM equipped_items")
+    suspend fun getEquippedItemsSnapshot(): List<EquippedItemEntity>
 
     /** 아이템 장착 (카테고리별 1개, Upsert로 교체) */
     @Upsert
