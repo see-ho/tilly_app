@@ -8,8 +8,11 @@ import com.seeho.tilly.core.model.UserCoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 /**
@@ -29,32 +32,35 @@ class CoinRepositoryImpl @Inject constructor(
         private const val STREAK_30_BONUS = 100     // 30일 연속 보너스
     }
 
+    // 코인 조작 동시성 보호용 Mutex
+    private val coinMutex = Mutex()
+
     override fun getUserCoin(): Flow<UserCoin> {
         return coinDao.getUserCoin().map { entity ->
             entity?.toModel() ?: UserCoin()  // 없으면 기본값 반환
         }
     }
 
-    override suspend fun claimAttendance(): Boolean {
+    override suspend fun claimAttendance(): Boolean = coinMutex.withLock {
         ensureCoinExists()
         resetDailyFlagsIfNeeded()
 
-        val current = coinDao.getUserCoin().firstOrNull() ?: return false
+        val current = coinDao.getUserCoin().firstOrNull() ?: return@withLock false
         // 이미 출석 보상을 받았으면 false 반환
-        if (current.dailyAttendanceClaimed) return false
+        if (current.dailyAttendanceClaimed) return@withLock false
 
         coinDao.addCoins(ATTENDANCE_REWARD)
         coinDao.setDailyAttendanceClaimed(true)
-        return true
+        true
     }
 
-    override suspend fun claimTilReward(): Boolean {
+    override suspend fun claimTilReward(): Boolean = coinMutex.withLock {
         ensureCoinExists()
         resetDailyFlagsIfNeeded()
 
-        val current = coinDao.getUserCoin().firstOrNull() ?: return false
+        val current = coinDao.getUserCoin().firstOrNull() ?: return@withLock false
         // 오늘 이미 TIL 보상을 받았으면 false 반환
-        if (current.dailyTilClaimed) return false
+        if (current.dailyTilClaimed) return@withLock false
 
         // TIL 기본 보상 지급
         coinDao.addCoins(TIL_REWARD)
@@ -65,36 +71,57 @@ class CoinRepositoryImpl @Inject constructor(
         coinDao.updateStreakCount(newStreak)
         checkAndApplyStreakBonus(newStreak)
 
-        return true
+        true
     }
 
     override suspend fun addCoins(amount: Int) {
-        ensureCoinExists()
-        coinDao.addCoins(amount)
+        require(amount > 0) { "추가할 코인은 양수여야 합니다: $amount" }
+        coinMutex.withLock {
+            ensureCoinExists()
+            coinDao.addCoins(amount)
+        }
     }
 
     override suspend fun deductCoins(amount: Int): Boolean {
-        ensureCoinExists()
-        val current = coinDao.getUserCoin().firstOrNull() ?: return false
-        // 잔액 부족 체크
-        if (current.balance < amount) return false
-        coinDao.deductCoins(amount)
-        return true
+        require(amount > 0) { "차감할 코인은 양수여야 합니다: $amount" }
+        return coinMutex.withLock {
+            ensureCoinExists()
+            val current = coinDao.getUserCoin().firstOrNull() ?: return@withLock false
+            // 잔액 부족 체크
+            if (current.balance < amount) return@withLock false
+            coinDao.deductCoins(amount)
+            true
+        }
     }
 
     override suspend fun resetDailyFlagsIfNeeded() {
-        val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+        val today = LocalDate.now()
+        val todayStr = today.format(DateTimeFormatter.ISO_LOCAL_DATE)
         val current = coinDao.getUserCoin().firstOrNull()
 
         // 날짜가 변경되었거나 데이터가 없으면 리셋
-        if (current == null || current.lastClaimedDate != today) {
+        if (current == null || current.lastClaimedDate != todayStr) {
             if (current != null) {
-                // 어제 TIL을 작성하지 않았으면 스트릭 초기화
-                if (!current.dailyTilClaimed) {
-                    coinDao.updateStreakCount(0)
+                // 마지막 접속일과 오늘 사이의 간격 계산
+                val lastDate = try {
+                    LocalDate.parse(current.lastClaimedDate, DateTimeFormatter.ISO_LOCAL_DATE)
+                } catch (_: Exception) {
+                    null
+                }
+
+                val daysBetween = lastDate?.let {
+                    ChronoUnit.DAYS.between(it, today)
+                } ?: Long.MAX_VALUE // 파싱 실패 시 스트릭 초기화
+
+                when {
+                    // 2일 이상 접속 안 한 경우 → 스트릭 무조건 초기화
+                    daysBetween > 1 -> coinDao.updateStreakCount(0)
+                    // 어제 접속했지만 TIL을 안 쓴 경우 → 스트릭 초기화
+                    daysBetween == 1L && !current.dailyTilClaimed -> coinDao.updateStreakCount(0)
+                    // daysBetween == 1 && dailyTilClaimed → 스트릭 유지
                 }
             }
-            coinDao.resetDailyFlags(today)
+            coinDao.resetDailyFlags(todayStr)
         }
     }
 
