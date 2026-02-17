@@ -16,19 +16,36 @@ import androidx.compose.ui.Modifier
 @Composable
 fun TillyCard(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
+    onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
-    Card(
-        modifier = modifier,
-        onClick = onClick,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        ),
-        shape = MaterialTheme.shapes.medium,
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            content()
+    val colors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+    )
+    val shape = MaterialTheme.shapes.medium
+
+    if (onClick != null) {
+        // 클릭 가능한 Card
+        Card(
+            modifier = modifier,
+            onClick = onClick,
+            colors = colors,
+            shape = shape,
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                content()
+            }
+        }
+    } else {
+        // 클릭 불가능한 Card
+        Card(
+            modifier = modifier,
+            colors = colors,
+            shape = shape,
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                content()
+            }
         }
     }
 }
