@@ -79,12 +79,13 @@ fun EquipmentItemCard(
     isEquipped: Boolean,
     onPurchaseItem: (ShopItem) -> Unit,
     onEquipItem: (ShopItem) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val drawableId = resolveDrawableId(context, item.imageResName)
 
     TillyCard(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .then(
                 if (isEquipped) Modifier.border(

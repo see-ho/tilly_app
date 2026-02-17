@@ -19,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.seeho.tilly.core.designsystem.R
+import java.text.NumberFormat
+import java.util.Locale
 
 /**
  * 코인 잔액 뱃지
@@ -45,7 +47,7 @@ fun CoinBadge(
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = "$balance",
+            text = NumberFormat.getNumberInstance(Locale.getDefault()).format(balance),
             color = MaterialTheme.colorScheme.primary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,

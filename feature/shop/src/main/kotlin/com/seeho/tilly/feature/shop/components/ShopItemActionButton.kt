@@ -40,11 +40,12 @@ fun ShopItemActionButton(
         isEquipped -> {
             Button(
                 onClick = { },
+                enabled = false,
                 modifier = modifier.fillMaxWidth().height(32.dp),
                 shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.primary,
+                    disabledContentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
             ) {

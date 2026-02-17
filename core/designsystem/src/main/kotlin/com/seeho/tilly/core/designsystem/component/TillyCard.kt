@@ -24,29 +24,27 @@ fun TillyCard(
     )
     val shape = MaterialTheme.shapes.medium
 
+    val cardContent: @Composable () -> Unit = {
+        Column(modifier = Modifier.padding(16.dp)) {
+            content()
+        }
+    }
+
     if (onClick != null) {
-        // 클릭 가능한 Card
         Card(
             modifier = modifier,
             onClick = onClick,
             colors = colors,
             shape = shape,
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                content()
-            }
-        }
+            content = { cardContent() },
+        )
     } else {
-        // 클릭 불가능한 Card
         Card(
             modifier = modifier,
             colors = colors,
             shape = shape,
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                content()
-            }
-        }
+            content = { cardContent() },
+        )
     }
 }
 

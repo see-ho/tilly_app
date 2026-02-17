@@ -32,7 +32,10 @@ fun CategoryTabs(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(ItemCategory.entries.toList()) { category ->
+        items(
+            items = ItemCategory.entries.toList(),
+            key = { it.name },
+        ) { category ->
             val isSelected = category == selectedCategory
             Box(
                 modifier = Modifier
