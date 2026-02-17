@@ -2,11 +2,16 @@ package com.seeho.tilly.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seeho.tilly.core.domain.AddCoinsUseCase
+import com.seeho.tilly.core.domain.ClaimAttendanceUseCase
 import com.seeho.tilly.core.domain.DeleteTilUseCase
 import com.seeho.tilly.core.domain.GetAllTilsUseCase
+import com.seeho.tilly.core.domain.GetShopItemsUseCase
 import com.seeho.tilly.core.domain.SaveTilUseCase
 import com.seeho.tilly.core.model.Difficulty
 import com.seeho.tilly.core.model.Emotion
+import com.seeho.tilly.core.model.ItemCategory
+import com.seeho.tilly.core.model.ShopItem
 import com.seeho.tilly.core.model.Til
 import kotlinx.coroutines.launch
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +29,34 @@ class HomeViewModel @Inject constructor(
     getAllTilsUseCase: GetAllTilsUseCase,
     private val deleteTilUseCase: DeleteTilUseCase,
     private val saveTilUseCase: SaveTilUseCase,
+    private val claimAttendanceUseCase: ClaimAttendanceUseCase,
+    private val addCoinsUseCase: AddCoinsUseCase,
+    getShopItemsUseCase: GetShopItemsUseCase,
 ) : ViewModel() {
+
+    // 코인 보상 이벤트 (amount, reason)
+    private val _coinRewardEvent = MutableStateFlow<Pair<Int, String>?>(null)
+    val coinRewardEvent: StateFlow<Pair<Int, String>?> = _coinRewardEvent.asStateFlow()
+
+    init {
+        // 홈 화면 진입 시 출석 보상 수령 시도 (5코인, 1일 1회)
+        viewModelScope.launch {
+            try {
+                val claimed = claimAttendanceUseCase()
+                if (claimed) {
+                    _coinRewardEvent.value = 5 to "출석 보상"
+                }
+            } catch (_: Exception) {
+                // 출석 보상 실패해도 앱 정상 동작
+                //TODO 고민
+            }
+        }
+    }
+
+    /** 보상 다이얼로그 닫기 */
+    fun consumeCoinRewardEvent() {
+        _coinRewardEvent.value = null
+    }
 
     /**
      * Home 화면 UI 상태
@@ -47,6 +79,13 @@ class HomeViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = HomeUiState.Loading,
         )
+
+    // 장착 중인 아이템 (카테고리 → 아이템ID)
+    val equippedItems: StateFlow<Map<ItemCategory, String>> = getShopItemsUseCase.getEquippedItems()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    // 전체 상점 아이템 (장착 아이템 ID → imageResName 변환용)
+    val allShopItems: List<ShopItem> = getShopItemsUseCase.getAllItems()
 
     /** 삭제할 TIL ID (null이면 다이얼로그 미표시) */
     private val _deletingTilId = MutableStateFlow<Long?>(null)
@@ -76,7 +115,16 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // ========== 디버그용: 랜덤 TIL 데이터 생성 ==========
+    // ========== 디버그용 ==========
+
+    /** 디버그: 테스트 코인 5000 추가 */
+    fun debugAddCoins(amount: Int = 5000) {
+        viewModelScope.launch {
+            addCoinsUseCase(amount)
+        }
+    }
+
+    // 랜덤 TIL 데이터 생성
 
     fun generateRandomTils() {
         val sampleData = listOf(

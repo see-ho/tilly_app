@@ -7,6 +7,7 @@ import com.seeho.tilly.core.domain.GetTilByIdUseCase
 import com.seeho.tilly.core.domain.SaveTilUseCase
 import com.seeho.tilly.core.domain.UpdateTilUseCase
 import com.seeho.tilly.core.domain.AnalyzeTilUseCase
+import com.seeho.tilly.core.domain.ClaimTilRewardUseCase
 import com.seeho.tilly.core.model.Til
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,6 +29,7 @@ class EditorViewModel @Inject constructor(
     private val updateTilUseCase: UpdateTilUseCase,
     private val getTilByIdUseCase: GetTilByIdUseCase,
     private val analyzeTilUseCase: AnalyzeTilUseCase,
+    private val claimTilRewardUseCase: ClaimTilRewardUseCase,
 ) : ViewModel() {
 
     // Navigation 인자에서 tilId 추출 (null이면 생성 모드)
@@ -38,6 +40,14 @@ class EditorViewModel @Inject constructor(
 
     private val _event = MutableSharedFlow<EditorEvent>()
     val event: SharedFlow<EditorEvent> = _event.asSharedFlow()
+
+    // 코인 보상 이벤트 (amount, reason) — 보상 다이얼로그 표시용
+    private val _coinRewardEvent = MutableStateFlow<Pair<Int, String>?>(null)
+    val coinRewardEvent: StateFlow<Pair<Int, String>?> = _coinRewardEvent.asStateFlow()
+
+    // 저장 성공 시 네비게이션할 TIL ID (보상 다이얼로그 닫힌 후 사용)
+    private val _pendingNavigationId = MutableStateFlow<Long?>(null)
+    val pendingNavigationId: StateFlow<Long?> = _pendingNavigationId.asStateFlow()
 
     init {
         // 수정 모드: 기존 TIL 데이터 로딩
@@ -133,6 +143,21 @@ class EditorViewModel @Inject constructor(
                     saveTilUseCase(til)
                 }
 
+                // 새 TIL 작성 시에만 코인 보상 지급 (수정 모드 제외)
+                if (tilId == null) {
+                    try {
+                        val claimed = claimTilRewardUseCase()
+                        if (claimed) {
+                            // 보상 수령 성공 → 다이얼로그 표시 후 네비게이션
+                            _pendingNavigationId.value = savedId
+                            _coinRewardEvent.value = 20 to "TIL 작성 보상"
+                            return@launch // 네비게이션은 다이얼로그 닫힌 후
+                        }
+                    } catch (_: Exception) {
+                        // 코인 지급 실패해도 TIL 저장은 성공으로 처리
+                    }
+                }
+
                 _event.emit(EditorEvent.SaveSuccess(savedId))
             } catch (e: CancellationException) {
                 throw e
@@ -141,6 +166,18 @@ class EditorViewModel @Inject constructor(
                 _event.emit(EditorEvent.SaveFailed)
             } finally {
                 _uiState.update { it.copy(isSaving = false) }
+            }
+        }
+    }
+
+    /** 보상 다이얼로그 닫기 → 대기 중인 네비게이션 실행 */
+    fun consumeCoinRewardEvent() {
+        _coinRewardEvent.value = null
+        val navId = _pendingNavigationId.value
+        if (navId != null) {
+            _pendingNavigationId.value = null
+            viewModelScope.launch {
+                _event.emit(EditorEvent.SaveSuccess(navId))
             }
         }
     }

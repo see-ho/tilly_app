@@ -37,20 +37,20 @@ fun TillyRoom(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        // 1. 의자
-        PixelAsset(resId = chairRes)
-
-        // 2. 책상
+        // 1. 책상
         PixelAsset(resId = deskRes)
 
-        // 3. 키보드
+        // 2. 키보드
         PixelAsset(resId = keyboardRes)
 
-        // 4. 캐릭터
+        // 3. 캐릭터
         GifAsset(
             gifRes = charRes,
             contentDescription = "Tilly"
         )
+
+        // 4. 의자
+        PixelAsset(resId = chairRes)
 
         // 5. 컴퓨터
         GifAsset(
