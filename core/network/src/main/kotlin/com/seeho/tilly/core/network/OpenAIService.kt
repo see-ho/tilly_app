@@ -44,14 +44,8 @@ class OpenAIService @Inject constructor(
 
         return try {
             val response = api.createChatCompletion(request)
-            val content = response.choices.firstOrNull()?.message?.content
-                ?: return Result.failure(Exception("OpenAI 응답이 비어있습니다"))
-
-            val cleanJson = content.replace("```json", "").replace("```", "").trim()
-            val jsonElement = json.parseToJsonElement(cleanJson)
-
-            val jsonObject = jsonElement as? JsonObject
-                ?: return Result.failure(Exception("OpenAI 응답이 JSON 객체가 아닙니다: $cleanJson"))
+            val jsonObject = parseOpenAIJsonResponse(response)
+                ?: return Result.failure(Exception("OpenAI 응답이 비어있거나 JSON 객체가 아닙니다"))
 
             Result.success(
                 TilAnalysisResult(
@@ -105,14 +99,8 @@ class OpenAIService @Inject constructor(
 
         return try {
             val response = api.createChatCompletion(request)
-            val content = response.choices.firstOrNull()?.message?.content
-                ?: return Result.failure(Exception("OpenAI 응답이 비어있습니다"))
-
-            val cleanJson = content.replace("```json", "").replace("```", "").trim()
-            val jsonElement = json.parseToJsonElement(cleanJson)
-
-            val jsonObject = jsonElement as? JsonObject
-                ?: return Result.failure(Exception("OpenAI 응답이 JSON 객체가 아닙니다: $cleanJson"))
+            val jsonObject = parseOpenAIJsonResponse(response)
+                ?: return Result.failure(Exception("OpenAI 응답이 비어있거나 JSON 객체가 아닙니다"))
 
             Result.success(
                 RetrospectiveResult(
@@ -130,6 +118,16 @@ class OpenAIService @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    /** OpenAI 응답에서 JSON 객체를 파싱하는 공통 함수 */
+    private fun parseOpenAIJsonResponse(
+        response: com.seeho.tilly.core.network.model.OpenAIChatResponse,
+    ): JsonObject? {
+        val content = response.choices.firstOrNull()?.message?.content ?: return null
+        val cleanJson = content.replace("```json", "").replace("```", "").trim()
+        val jsonElement = json.parseToJsonElement(cleanJson)
+        return jsonElement as? JsonObject
     }
 
     companion object {
