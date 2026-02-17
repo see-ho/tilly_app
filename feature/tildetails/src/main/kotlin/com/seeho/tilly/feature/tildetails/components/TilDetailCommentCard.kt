@@ -32,6 +32,7 @@ import com.seeho.tilly.core.model.Difficulty
 import com.seeho.tilly.core.model.Til
 
 import com.seeho.tilly.core.designsystem.util.color
+import com.seeho.tilly.core.designsystem.util.iconRes
 
 @Composable
 fun TilDetailCommentCard(
@@ -49,12 +50,7 @@ fun TilDetailCommentCard(
         else -> R.drawable.ic_tilly_challenged
     }
 
-    val difficultyIcon = when (difficultyLevel) {
-        Difficulty.EASY -> R.drawable.ic_difficult_easy
-        Difficulty.NORMAL -> R.drawable.ic_difficult_normal
-        Difficulty.HARD -> R.drawable.ic_difficult_hard
-        Difficulty.VERY_HARD -> R.drawable.ic_difficult_veryhard
-    }
+    val difficultyIcon = difficultyLevel.iconRes
 
     val difficultyColor = difficultyLevel.color
 

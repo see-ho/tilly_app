@@ -19,7 +19,7 @@ coroutines = "1.8.1"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
 retrofitKotlinSerialization = "2.11.0"
-vico = "2.0.0-beta.3"
+vico = "2.1.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

@@ -65,8 +65,8 @@ class StatisticsViewModel @Inject constructor(
             canGoNext = !isCurrentOrFuture(month, year),
             isLoading = false,
             
-            // 감정 추세 (선택된 월 전체)
-            emotionTrendData = mapToEmotionTrend(month, year, tils),
+            // 감정 추세 (이번 달)
+            emotionTrendData = mapToEmotionTrend(currentMonthTils),
             daysInMonth = daysInMonth,
             
             // 학습 키워드 (이번 달)
@@ -149,12 +149,8 @@ class StatisticsViewModel @Inject constructor(
         return year > now.year || (year == now.year && month >= now.monthValue)
     }
 
-    private fun mapToEmotionTrend(month: Int, year: Int, tils: List<Til>): List<EmotionTrendItem> {
+    private fun mapToEmotionTrend(tils: List<Til>): List<EmotionTrendItem> {
         return tils
-            .filter {
-                val date = DateUtils.timestampToLocalDate(it.createdAt)
-                date.monthValue == month && date.year == year
-            }
             .map { til ->
                 EmotionTrendItem(
                     day = DateUtils.timestampToLocalDate(til.createdAt).dayOfMonth,

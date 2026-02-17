@@ -45,6 +45,7 @@ fun LearningKeywordChart(
     if (data.isEmpty()) return
 
     val total = remember(data) { data.sumOf { it.percent } }
+    if (total == 0) return
     val textMeasurer = rememberTextMeasurer()
     val subtextColor = MaterialTheme.colorScheme.onSurfaceVariant
     val textStyle = MaterialTheme.typography.bodySmall.copy(

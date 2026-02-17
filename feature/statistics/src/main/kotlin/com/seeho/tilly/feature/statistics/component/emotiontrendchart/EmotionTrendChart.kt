@@ -34,9 +34,9 @@ import com.patrykandpatrick.vico.core.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.core.cartesian.layer.LineCartesianLayer
-import com.patrykandpatrick.vico.core.cartesian.marker.CartesianMarkerValueFormatter
-import com.patrykandpatrick.vico.core.common.Dimensions
+import com.patrykandpatrick.vico.core.cartesian.marker.DefaultCartesianMarker
 import com.patrykandpatrick.vico.core.common.Fill
+import com.patrykandpatrick.vico.core.common.Insets
 import com.patrykandpatrick.vico.core.common.LayeredComponent
 import com.patrykandpatrick.vico.core.common.component.ShapeComponent
 import com.patrykandpatrick.vico.core.common.component.TextComponent
@@ -44,6 +44,7 @@ import com.patrykandpatrick.vico.core.common.shape.CorneredShape
 import com.seeho.tilly.core.designsystem.theme.NeoTerminalGreen
 import com.seeho.tilly.feature.statistics.EmotionTrendItem
 import kotlinx.coroutines.Dispatchers
+import kotlin.math.roundToInt
 import kotlinx.coroutines.withContext
 
 /**
@@ -99,7 +100,7 @@ fun EmotionTrendChart(
     val label = rememberTextComponent(
         color = MaterialTheme.colorScheme.onSurface,
         textSize = 12.sp,
-        padding = Dimensions(8f, 4f, 8f, 4f),
+        padding = Insets(8f, 4f, 8f, 4f),
         background = labelBackground,
         minWidth = TextComponent.MinWidth.fixed(40f),
     )
@@ -113,12 +114,12 @@ fun EmotionTrendChart(
     // 터치 시 날짜 + 점수 표시
     val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
     val valueFormatter = remember(data, primaryColor) {
-        CartesianMarkerValueFormatter { _, targets ->
-            val target = targets.firstOrNull() ?: return@CartesianMarkerValueFormatter ""
+        DefaultCartesianMarker.ValueFormatter { _, targets ->
+            val target = targets.first()
             val day = target.x.toInt()
-            val item = data.find { it.day == day } ?: return@CartesianMarkerValueFormatter ""
+            val item = data.find { it.day == day } ?: return@ValueFormatter ""
             val dayText = "${day}일 · "
-            val scoreText = "${item.score.toInt()}점"
+            val scoreText = "${item.score.roundToInt()}점"
             SpannableStringBuilder(dayText + scoreText).apply {
                 setSpan(
                     ForegroundColorSpan(primaryColor),
@@ -136,12 +137,12 @@ fun EmotionTrendChart(
         valueFormatter = valueFormatter,
         indicator = { color ->
             LayeredComponent(
-                rear = ShapeComponent(
+                back = ShapeComponent(
                     fill = Fill(color.copy(alpha = 0.15f).toArgb()),
                     shape = CorneredShape.Pill,
                 ),
                 front = LayeredComponent(
-                    rear = ShapeComponent(
+                    back = ShapeComponent(
                         fill = Fill(color.toArgb()),
                         shape = CorneredShape.Pill,
                     ),
@@ -149,9 +150,9 @@ fun EmotionTrendChart(
                         fill = Fill(surfaceColor),
                         shape = CorneredShape.Pill,
                     ),
-                    padding = Dimensions(5f),
+                    padding = Insets(5f),
                 ),
-                padding = Dimensions(10f),
+                padding = Insets(10f),
             )
         },
         indicatorSize = 36.dp,
@@ -166,7 +167,7 @@ fun EmotionTrendChart(
                         fill = LineCartesianLayer.LineFill.single(fill(NeoTerminalGreen)),
                         areaFill = null,
                         // 직선 연결
-                        pointConnector = LineCartesianLayer.PointConnector.cubic(curvature = 0f),
+                        pointConnector = LineCartesianLayer.PointConnector.cubic(curvature = 0.0001f),
                         // 데이터 포인트에 점 표시
                         pointProvider = LineCartesianLayer.PointProvider.single(
                             LineCartesianLayer.Point(
@@ -190,12 +191,16 @@ fun EmotionTrendChart(
                     color = MaterialTheme.colorScheme.onSurface,
                     textSize = 10.sp
                 ),
-                valueFormatter = { _, y, _ -> y.toInt().toString() }
+                valueFormatter = { _, y, _ -> y.toInt().toString() },
+                // Y축 수평 그리드 라인을 은은하게 설정
+                guideline = rememberAxisGuidelineComponent(
+                    fill = fill(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.08f)),
+                ),
             ),
             bottomAxis = HorizontalAxis.rememberBottom(
                 valueFormatter = bottomAxisValueFormatter,
                 itemPlacer = HorizontalAxis.ItemPlacer.aligned(
-                    spacing = 1,
+                    spacing = { 1 },
                     shiftExtremeLines = true,
                     addExtremeLabelPadding = true
                 ),

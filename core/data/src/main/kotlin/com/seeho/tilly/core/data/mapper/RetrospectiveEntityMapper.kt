@@ -18,6 +18,7 @@ fun RetrospectiveEntity.toModel(): MonthlyRetrospective {
 
 fun MonthlyRetrospective.toEntity(): RetrospectiveEntity {
     return RetrospectiveEntity(
+        id = id,
         month = month,
         year = year,
         summary = summary,

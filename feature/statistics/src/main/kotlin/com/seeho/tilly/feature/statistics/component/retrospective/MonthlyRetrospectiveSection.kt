@@ -420,11 +420,11 @@ private fun TillyCommentCard(
     // 평균 감정 점수에 따른 멘트
     val tillyMessage = when {
         averageEmotionScore >= 4f ->
-            "이번 달 정말 수고했어요.\n평균 감정 점수는 ${String.format("%.1f", averageEmotionScore)}점!\n이 기세로 다음 달도 화이팅! 🔥"
+            "이번 달 정말 수고했어요.\n평균 감정 점수는 ${String.format(java.util.Locale.KOREA, "%.1f", averageEmotionScore)}점!\n이 기세로 다음 달도 화이팅! 🔥"
         averageEmotionScore >= 3f ->
-            "이번 달 정말 수고했어요.\n평균 감정 점수는 ${String.format("%.1f", averageEmotionScore)}점!\n다음 달엔 조금 더 도전해볼까요?"
+            "이번 달 정말 수고했어요.\n평균 감정 점수는 ${String.format(java.util.Locale.KOREA, "%.1f", averageEmotionScore)}점!\n다음 달엔 조금 더 도전해볼까요?"
         averageEmotionScore > 0f ->
-            "이번 달 고생 많았어요.\n평균 감정 점수는 ${String.format("%.1f", averageEmotionScore)}점!\n힘들었지만 성장하고 있어요 💪"
+            "이번 달 고생 많았어요.\n평균 감정 점수는 ${String.format(java.util.Locale.KOREA, "%.1f", averageEmotionScore)}점!\n힘들었지만 성장하고 있어요 💪"
         else ->
             "이번 달도 함께해줘서 고마워요!\n다음 달도 틸리가 응원할게요 🐾"
     }
