@@ -28,6 +28,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.tooling.preview.Preview
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.core.model.Difficulty
+import com.seeho.tilly.core.model.ItemCategory
+import com.seeho.tilly.core.model.ShopItem
 import com.seeho.tilly.core.model.Til
 import com.seeho.tilly.core.common.util.DateUtils
 
@@ -37,15 +39,20 @@ fun TilFeed(
     onTilClick: (Long) -> Unit,
     onDelete: (Long) -> Unit,
     onShopClick: () -> Unit,
+    equippedItems: Map<ItemCategory, String> = emptyMap(),
+    allShopItems: List<ShopItem> = emptyList(),
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(bottom = 16.dp),
     ) {
-        // 1. Tilly 섹션
+        // 1. Tilly 섹션 — 장착 아이템에 따라 TillyRoom 동적 변경
         item {
-            HomeTillySection(onShopClick = onShopClick)
+            HomeTillySection(
+                equippedItems = equippedItems,
+                allShopItems = allShopItems,
+            )
         }
 
         // 2. 리스트 헤더

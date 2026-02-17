@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.seeho.tilly.core.designsystem.component.CoinRewardDialog
 import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
 import com.seeho.tilly.core.designsystem.component.TillyTopAppBar
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
@@ -53,6 +54,7 @@ fun EditorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val coinRewardEvent by viewModel.coinRewardEvent.collectAsStateWithLifecycle()
 
     // 이벤트 수신 → 저장 성공 시 상세 화면 이동, 실패 시 스낵바 표시
     LaunchedEffect(Unit) {
@@ -77,23 +79,34 @@ fun EditorScreen(
         return
     }
 
-    EditorContent(
-        title = uiState.title,
-        onTitleChange = viewModel::onTitleChange,
-        todayLearning = uiState.todayLearning,
-        onTodayLearningChange = viewModel::onTodayLearningChange,
-        difficulties = uiState.difficulties,
-        onDifficultiesChange = viewModel::onDifficultiesChange,
-        tomorrowPlan = uiState.tomorrowPlan,
-        onTomorrowPlanChange = viewModel::onTomorrowPlanChange,
-        isSaveEnabled = uiState.isSaveEnabled,
-        isEditMode = uiState.isEditMode,
-        isSaving = uiState.isSaving,
-        isAnalyzing = uiState.isAnalyzing,
-        onBackClick = onBackClick,
-        onSaveClick = viewModel::onSave,
-        snackbarHostState = snackbarHostState,
-    )
+    // EditorContent + 코인 보상 다이얼로그 오버레이
+    Box(modifier = Modifier.fillMaxSize()) {
+        EditorContent(
+            title = uiState.title,
+            onTitleChange = viewModel::onTitleChange,
+            todayLearning = uiState.todayLearning,
+            onTodayLearningChange = viewModel::onTodayLearningChange,
+            difficulties = uiState.difficulties,
+            onDifficultiesChange = viewModel::onDifficultiesChange,
+            tomorrowPlan = uiState.tomorrowPlan,
+            onTomorrowPlanChange = viewModel::onTomorrowPlanChange,
+            isSaveEnabled = uiState.isSaveEnabled,
+            isEditMode = uiState.isEditMode,
+            isSaving = uiState.isSaving,
+            isAnalyzing = uiState.isAnalyzing,
+            onBackClick = onBackClick,
+            onSaveClick = viewModel::onSave,
+            snackbarHostState = snackbarHostState,
+        )
+
+        // 코인 보상 다이얼로그
+        CoinRewardDialog(
+            visible = coinRewardEvent != null,
+            amount = coinRewardEvent?.first ?: 0,
+            reason = coinRewardEvent?.second ?: "",
+            onDismiss = viewModel::consumeCoinRewardEvent,
+        )
+    }
 }
 
 @Composable
