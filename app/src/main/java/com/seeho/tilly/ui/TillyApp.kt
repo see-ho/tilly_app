@@ -46,7 +46,6 @@ fun TillyApp(
                         TopLevelDestination.STATISTICS -> "Statistics"
                         TopLevelDestination.HOME -> "TILLY"
                         TopLevelDestination.REPORT -> "Report"
-                        else -> "TILLY"
                     },
                     onSettingsClick = { /* TODO: 설정 화면*/ }
                 )
