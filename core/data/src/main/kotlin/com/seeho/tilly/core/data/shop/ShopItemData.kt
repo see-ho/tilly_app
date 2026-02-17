@@ -38,6 +38,6 @@ object ShopItemData {
         add(ShopItem("theme_monokai", "Monokai", "클래식 이즈 베스트.", ItemCategory.THEME, 500, "theme_monokai", 4))
         add(ShopItem("theme_one_dark", "One Dark", "국룰 다크 모드.\n10명 중 8명이 쓴다는 그 색조.", ItemCategory.THEME, 500, "theme_one_dark", 4))
         add(ShopItem("theme_nord", "Nord", "내 본체는 뜨거워도 테마만은 차갑게.", ItemCategory.THEME, 800, "theme_nord", 4))
-        add(ShopItem("theme_gruvbox", "Gruvbox", "눈이 편한하고 어딘가 힙한 레트로 감성.", ItemCategory.THEME, 800, "theme_gruvbox", 4))
+        add(ShopItem("theme_gruvbox", "Gruvbox", "눈이 편하고 어딘가 힙한 레트로 감성.", ItemCategory.THEME, 800, "theme_gruvbox", 4))
     }
 }
