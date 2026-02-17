@@ -3,7 +3,9 @@ package com.seeho.tilly.core.database.di
 import android.content.Context
 import androidx.room.Room
 import com.seeho.tilly.core.database.TillyDatabase
+import com.seeho.tilly.core.database.dao.CoinDao
 import com.seeho.tilly.core.database.dao.RetrospectiveDao
+import com.seeho.tilly.core.database.dao.ShopDao
 import com.seeho.tilly.core.database.dao.TilDao
 import dagger.Module
 import dagger.Provides
@@ -41,5 +43,15 @@ object DatabaseModule {
     @Provides
     fun provideRetrospectiveDao(database: TillyDatabase): RetrospectiveDao {
         return database.retrospectiveDao()
+    }
+
+    @Provides
+    fun provideCoinDao(database: TillyDatabase): CoinDao {
+        return database.coinDao()
+    }
+
+    @Provides
+    fun provideShopDao(database: TillyDatabase): ShopDao {
+        return database.shopDao()
     }
 }
