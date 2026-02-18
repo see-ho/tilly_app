@@ -31,7 +31,6 @@ import com.seeho.tilly.feature.home.navigation.Home
 import com.seeho.tilly.feature.home.navigation.homeScreen
 import com.seeho.tilly.feature.mypage.navigation.MyPageRoute
 import com.seeho.tilly.feature.mypage.navigation.myPageScreen
-import com.seeho.tilly.feature.report.navigation.reportScreen
 import com.seeho.tilly.feature.shop.navigation.ShopRoute
 import com.seeho.tilly.feature.shop.navigation.shopScreen
 import com.seeho.tilly.feature.statistics.navigation.statisticsScreen
@@ -107,7 +106,6 @@ fun TillyApp(
                         appState.navController.navigateToEditor(tilId)
                     }
                 )
-                reportScreen()
                 statisticsScreen()
                 shopScreen()
                 myPageScreen()

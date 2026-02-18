@@ -37,9 +37,7 @@ fun TillyTopAppBar(
                 color = MaterialTheme.colorScheme.primary
             )
         },
-        actions = {
-            actions()
-        },
+        actions = actions,
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.Transparent,
             titleContentColor = MaterialTheme.colorScheme.primary,

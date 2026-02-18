@@ -3,8 +3,10 @@ package com.seeho.tilly.feature.tildetails
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.seeho.tilly.core.domain.DeleteTilUseCase
 import com.seeho.tilly.core.domain.GetTilByIdUseCase
+import com.seeho.tilly.feature.tildetails.navigation.TilDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -23,10 +25,8 @@ class TilDetailViewModel @Inject constructor(
     private val deleteTilUseCase: DeleteTilUseCase,
 ) : ViewModel() {
 
-    // Navigation 인자에서 tilId 추출
-    private val tilId: Long = checkNotNull(savedStateHandle.get<Long>("tilId")) {
-        "tilId는 반드시 전달되어야 합니다"
-    }
+    // Navigation 라우트에서 tilId 추출 (타입-세이프 방식)
+    private val tilId: Long = savedStateHandle.toRoute<TilDetail>().tilId
 
     /**
      * Detail 화면 UI 상태
