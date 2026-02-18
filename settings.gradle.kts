@@ -37,6 +37,7 @@ include(":core:navigation")
 // Feature modules
 include(":feature:home")
 include(":feature:shop")
+include(":feature:mypage")
 include(":feature:tildetails")
 include(":feature:editor")
 include(":feature:report")

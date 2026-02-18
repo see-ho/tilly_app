@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":feature:home"))
     implementation(project(":feature:tildetails"))
     implementation(project(":feature:shop"))
+    implementation(project(":feature:mypage"))
     implementation(project(":feature:report"))
     implementation(project(":feature:statistics"))
     implementation(project(":feature:editor"))
