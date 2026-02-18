@@ -26,7 +26,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import com.seeho.tilly.core.designsystem.component.TillyFab
 import com.seeho.tilly.core.designsystem.component.TillyTopAppBar
-import com.seeho.tilly.core.navigation.TilDetail
+import com.seeho.tilly.feature.tildetails.navigation.TilDetail
 import com.seeho.tilly.feature.home.navigation.Home
 import com.seeho.tilly.feature.home.navigation.homeScreen
 import com.seeho.tilly.feature.mypage.navigation.MyPageRoute
@@ -58,7 +58,6 @@ fun TillyApp(
                         TopLevelDestination.STATISTICS -> "Statistics"
                         TopLevelDestination.MY -> "My"
                     },
-                    onSettingsClick = { /* TODO: 설정 화면*/ }
                 )
             }
         },
@@ -154,7 +153,7 @@ private fun AppBottomBarWithFab(
             destinations.forEachIndexed { index, destination ->
                 // 상점(1)과 통계(2) 사이에 FAB 공간
                 if (index == 2) {
-                    Spacer(modifier = Modifier.width(56.dp))
+                    Spacer(modifier = Modifier.width(48.dp))
                 }
 
                 val selected = currentDestination.isTopLevelDestinationInHierarchy(destination)
@@ -178,7 +177,7 @@ private fun AppBottomBarWithFab(
             onClick = onFabClick,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(y = (-16).dp),
+                .offset(y = (-24).dp),
         )
     }
 }

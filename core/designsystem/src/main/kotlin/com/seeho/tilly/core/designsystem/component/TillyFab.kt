@@ -37,7 +37,7 @@ fun TillyFab(
     ) {
         Spacer(
             modifier = Modifier
-                .size(64.dp)
+                .size(56.dp)
                 .drawBehind {
                     drawCircle(
                         brush = Brush.radialGradient(
@@ -53,6 +53,7 @@ fun TillyFab(
         
         FloatingActionButton(
             onClick = onClick,
+            modifier = Modifier.size(48.dp),
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
             shape = CircleShape,
@@ -61,6 +62,7 @@ fun TillyFab(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add",
+                modifier = Modifier.size(20.dp),
             )
         }
     }
