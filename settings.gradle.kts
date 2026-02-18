@@ -32,7 +32,6 @@ include(":core:domain")
 include(":core:network")
 include(":core:database")
 include(":core:datastore")
-include(":core:navigation")
 
 // Feature modules
 include(":feature:home")

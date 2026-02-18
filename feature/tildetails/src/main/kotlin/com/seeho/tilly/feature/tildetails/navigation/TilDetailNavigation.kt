@@ -4,8 +4,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.seeho.tilly.core.navigation.TilDetail
 import com.seeho.tilly.feature.tildetails.TilDetailScreen
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class TilDetail(val tilId: Long, val fromSave: Boolean = false)
 
 fun NavController.navigateToTilDetail(tilId: Long) = navigate(TilDetail(tilId))
 
