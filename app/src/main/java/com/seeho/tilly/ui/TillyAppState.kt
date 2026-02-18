@@ -11,11 +11,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.seeho.tilly.feature.home.navigation.Home
-import com.seeho.tilly.feature.report.navigation.ReportRoute
+import com.seeho.tilly.feature.mypage.navigation.MyPageRoute
+import com.seeho.tilly.feature.shop.navigation.ShopRoute
 import com.seeho.tilly.feature.statistics.navigation.StatisticsRoute
 import com.seeho.tilly.navigation.TopLevelDestination
 import com.seeho.tilly.navigation.TopLevelDestination.HOME
-import com.seeho.tilly.navigation.TopLevelDestination.REPORT
+import com.seeho.tilly.navigation.TopLevelDestination.MY
+import com.seeho.tilly.navigation.TopLevelDestination.SHOP
 import com.seeho.tilly.navigation.TopLevelDestination.STATISTICS
 import kotlinx.coroutines.CoroutineScope
 
@@ -30,8 +32,9 @@ class TillyAppState(
     val currentTopLevelDestination: TopLevelDestination?
         @Composable get() = when {
             currentDestination?.hasRoute<Home>() == true -> HOME
-            currentDestination?.hasRoute<ReportRoute>() == true -> REPORT
+            currentDestination?.hasRoute<ShopRoute>() == true -> SHOP
             currentDestination?.hasRoute<StatisticsRoute>() == true -> STATISTICS
+            currentDestination?.hasRoute<MyPageRoute>() == true -> MY
             else -> null
         }
 
@@ -48,8 +51,9 @@ class TillyAppState(
 
         when (topLevelDestination) {
             HOME -> navController.navigate(Home, topLevelNavOptions)
+            SHOP -> navController.navigate(ShopRoute, topLevelNavOptions)
             STATISTICS -> navController.navigate(StatisticsRoute, topLevelNavOptions)
-            REPORT -> navController.navigate(ReportRoute, topLevelNavOptions)
+            MY -> navController.navigate(MyPageRoute, topLevelNavOptions)
         }
     }
 
