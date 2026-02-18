@@ -1,6 +1,7 @@
 package com.seeho.tilly.ui
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
@@ -81,10 +82,10 @@ fun TillyApp(
             NavHost(
                 navController = appState.navController,
                 startDestination = Home,
-                enterTransition = { fadeIn(animationSpec = androidx.compose.animation.core.tween(200)) },
-                exitTransition = { fadeOut(animationSpec = androidx.compose.animation.core.tween(200)) },
-                popEnterTransition = { fadeIn(animationSpec = androidx.compose.animation.core.tween(200)) },
-                popExitTransition = { fadeOut(animationSpec = androidx.compose.animation.core.tween(200)) },
+                enterTransition = { fadeIn(animationSpec = tween(200)) },
+                exitTransition = { fadeOut(animationSpec = tween(200)) },
+                popEnterTransition = { fadeIn(animationSpec = tween(200)) },
+                popExitTransition = { fadeOut(animationSpec = tween(200)) },
             ) {
                 homeScreen(
                     onTilClick = { id ->
