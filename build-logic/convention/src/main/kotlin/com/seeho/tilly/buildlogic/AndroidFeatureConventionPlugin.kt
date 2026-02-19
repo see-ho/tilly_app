@@ -32,9 +32,9 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
             dependencies {
                 // API: 외부에 노출 (app 모듈이 Route, Model 등에 접근)
-                "api"(project(":core:navigation"))
                 "api"(project(":core:model"))
-                
+                "api"(libs.findLibrary("androidx.navigation.compose").get())
+
                 // Implementation: 내부에서만 사용
                 "implementation"(project(":core:designsystem"))
                 "implementation"(project(":core:common"))

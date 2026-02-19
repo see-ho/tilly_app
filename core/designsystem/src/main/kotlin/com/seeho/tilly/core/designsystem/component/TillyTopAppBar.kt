@@ -3,12 +3,8 @@ package com.seeho.tilly.core.designsystem.component
 import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,7 +23,6 @@ fun TillyTopAppBar(
     titleText: String = "TILLY",
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    onSettingsClick: (() -> Unit)? = null,
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier,
@@ -42,18 +37,7 @@ fun TillyTopAppBar(
                 color = MaterialTheme.colorScheme.primary
             )
         },
-        actions = {
-            actions()
-            if (onSettingsClick != null) {
-                IconButton(onClick = onSettingsClick) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-        },
+        actions = actions,
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.Transparent,
             titleContentColor = MaterialTheme.colorScheme.primary,
@@ -66,7 +50,7 @@ fun TillyTopAppBar(
 private fun TillyTopAppBarPreview() {
     TillyTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            TillyTopAppBar(onSettingsClick = {})
+            TillyTopAppBar()
         }
     }
 }
