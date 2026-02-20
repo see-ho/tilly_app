@@ -22,7 +22,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.seeho.tilly.core.designsystem.component.TillyAlertDialog
 import com.seeho.tilly.core.designsystem.component.CoinRewardDialog
-import com.seeho.tilly.core.designsystem.component.TillyFab
 import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.core.model.ItemCategory
@@ -69,8 +68,7 @@ fun HomeScreen(
     // 코인 보상 다이얼로그
     CoinRewardDialog(
         visible = coinRewardEvent != null,
-        amount = coinRewardEvent?.first ?: 0,
-        reason = coinRewardEvent?.second ?: "",
+        rewardResult = coinRewardEvent,
         onDismiss = viewModel::consumeCoinRewardEvent,
     )
 }

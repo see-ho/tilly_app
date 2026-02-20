@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.seeho.tilly.core.database.TillyDatabase
 import com.seeho.tilly.core.database.dao.CoinDao
+import com.seeho.tilly.core.database.dao.CoinTransactionDao
 import com.seeho.tilly.core.database.dao.RetrospectiveDao
 import com.seeho.tilly.core.database.dao.ShopDao
 import com.seeho.tilly.core.database.dao.TilDao
@@ -53,5 +54,10 @@ object DatabaseModule {
     @Provides
     fun provideShopDao(database: TillyDatabase): ShopDao {
         return database.shopDao()
+    }
+
+    @Provides
+    fun provideCoinTransactionDao(database: TillyDatabase): CoinTransactionDao {
+        return database.coinTransactionDao()
     }
 }
