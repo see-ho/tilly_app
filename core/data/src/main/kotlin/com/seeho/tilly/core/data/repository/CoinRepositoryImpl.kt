@@ -1,7 +1,9 @@
 package com.seeho.tilly.core.data.repository
 
+import androidx.room.withTransaction
 import com.seeho.tilly.core.data.mapper.toModel
 import com.seeho.tilly.core.data.reward.RewardPolicy
+import com.seeho.tilly.core.database.TillyDatabase
 import com.seeho.tilly.core.database.dao.CoinDao
 import com.seeho.tilly.core.database.dao.CoinTransactionDao
 import com.seeho.tilly.core.database.entity.CoinEntity
@@ -24,10 +26,12 @@ import javax.inject.Inject
 /**
  * CoinRepository 구현체
  * 코인 잔액 관리 + 일일 보상 플래그 + 스트릭 카운터 + 거래 내역 기록
+ * 코인 변경과 거래 내역 기록은 withTransaction으로 원자적으로 묶어 데이터 무결성 보장
  */
 class CoinRepositoryImpl @Inject constructor(
     private val coinDao: CoinDao,
     private val coinTransactionDao: CoinTransactionDao,
+    private val database: TillyDatabase,
 ) : CoinRepository {
 
     // 코인 조작 동시성 보호용 Mutex
@@ -54,15 +58,17 @@ class CoinRepositoryImpl @Inject constructor(
         if (current.dailyAttendanceClaimed) return@withLock null
 
         val reward = RewardPolicy.attendanceReward()
-        coinDao.addCoins(reward.amount)
-        coinDao.setDailyAttendanceClaimed(true)
 
-        // 거래 내역 기록
-        recordTransaction(
-            amount = reward.amount,
-            type = CoinTransactionType.ATTENDANCE,
-            description = reward.description,
-        )
+        // 코인 변경 + 거래 내역 처리
+        database.withTransaction {
+            coinDao.addCoins(reward.amount)
+            coinDao.setDailyAttendanceClaimed(true)
+            recordTransaction(
+                amount = reward.amount,
+                type = CoinTransactionType.ATTENDANCE,
+                description = reward.description,
+            )
+        }
         RewardResult(rewards = listOf(reward))
     }
 
@@ -76,32 +82,31 @@ class CoinRepositoryImpl @Inject constructor(
 
         // 보상 항목 수집
         val rewards = mutableListOf(RewardPolicy.tilReward())
-
-        // TIL 기본 보상 지급
         val tilReward = rewards.first()
-        coinDao.addCoins(tilReward.amount)
-        coinDao.setDailyTilClaimed(true)
 
-        // 거래 내역 기록
-        recordTransaction(
-            amount = tilReward.amount,
-            type = CoinTransactionType.TIL_REWARD,
-            description = tilReward.description,
-        )
-
-        // 스트릭 업데이트 + 보너스 지급
-        val newStreak = current.streakCount + 1
-        coinDao.updateStreakCount(newStreak)
-
-        // 스트릭 보너스가 있으면 rewards에 추가
-        RewardPolicy.getStreakBonus(newStreak)?.let { bonus ->
-            coinDao.addCoins(bonus.amount)
-            rewards.add(bonus)
+        database.withTransaction {
+            coinDao.addCoins(tilReward.amount)
+            coinDao.setDailyTilClaimed(true)
             recordTransaction(
-                amount = bonus.amount,
-                type = CoinTransactionType.STREAK_BONUS,
-                description = bonus.description,
+                amount = tilReward.amount,
+                type = CoinTransactionType.TIL_REWARD,
+                description = tilReward.description,
             )
+
+            // 스트릭 업데이트 + 보너스 지급
+            val newStreak = current.streakCount + 1
+            coinDao.updateStreakCount(newStreak)
+
+            // 스트릭 보너스가 있으면 rewards에 추가
+            RewardPolicy.getStreakBonus(newStreak)?.let { bonus ->
+                coinDao.addCoins(bonus.amount)
+                rewards.add(bonus)
+                recordTransaction(
+                    amount = bonus.amount,
+                    type = CoinTransactionType.STREAK_BONUS,
+                    description = bonus.description,
+                )
+            }
         }
 
         RewardResult(rewards = rewards)
@@ -111,12 +116,14 @@ class CoinRepositoryImpl @Inject constructor(
         require(amount > 0) { "추가할 코인은 양수여야 합니다: $amount" }
         coinMutex.withLock {
             ensureCoinExists()
-            coinDao.addCoins(amount)
-            recordTransaction(
-                amount = amount,
-                type = CoinTransactionType.AD_REWARD,
-                description = "광고 시청 보상",
-            )
+            database.withTransaction {
+                coinDao.addCoins(amount)
+                recordTransaction(
+                    amount = amount,
+                    type = CoinTransactionType.AD_REWARD,
+                    description = "광고 시청 보상",
+                )
+            }
         }
     }
 
@@ -127,12 +134,14 @@ class CoinRepositoryImpl @Inject constructor(
             val current = coinDao.getUserCoin().firstOrNull() ?: return@withLock false
             // 잔액 부족 체크
             if (current.balance < amount) return@withLock false
-            coinDao.deductCoins(amount)
-            recordTransaction(
-                amount = -amount,
-                type = CoinTransactionType.PURCHASE,
-                description = "아이템 구매",
-            )
+            database.withTransaction {
+                coinDao.deductCoins(amount)
+                recordTransaction(
+                    amount = -amount,
+                    type = CoinTransactionType.PURCHASE,
+                    description = "아이템 구매",
+                )
+            }
             true
         }
     }
