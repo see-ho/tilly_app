@@ -1,6 +1,7 @@
 package com.seeho.tilly.feature.mypage
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.core.model.NotificationSettings
 import com.seeho.tilly.feature.mypage.components.ActivityStatsRow
@@ -52,6 +54,16 @@ fun MyPageContent(
     onCoinHistoryClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    if (uiState.isLoading) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = androidx.compose.ui.Alignment.Center,
+        ) {
+            TillyLoadingIndicator()
+        }
+        return
+    }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()

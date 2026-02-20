@@ -24,19 +24,41 @@ import androidx.compose.ui.unit.dp
 import com.seeho.tilly.core.designsystem.component.TillyCard
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 
-// 마일스톤 단계 정의
-private val MILESTONES = listOf(7, 14, 30, 60, 100)
+// 초반 마일스톤 (세밀한 단계)
+private val EARLY_MILESTONES = listOf(7, 14, 30)
+
+// 이후 10일 단위 간격
+private const val INTERVAL = 10
+
+/**
+ * 마일스톤 진행 정보
+ */
+private data class MilestoneProgress(val prev: Int, val next: Int, val progress: Float)
 
 /**
  * 다음 마일스톤과 진행률 계산
+ * 초반: 7 → 14 → 30일, 이후: 10일 단위 (40, 50, 60, ...)
  */
-private fun getNextMilestone(streakCount: Int): Pair<Int, Float> {
-    val nextMilestone = MILESTONES.firstOrNull { it > streakCount }
-        ?: (MILESTONES.last() + 100)
-    val prevMilestone = MILESTONES.lastOrNull { it <= streakCount } ?: 0
-    val progress = if (nextMilestone == prevMilestone) 1f
-    else (streakCount - prevMilestone).toFloat() / (nextMilestone - prevMilestone).toFloat()
-    return nextMilestone to progress.coerceIn(0f, 1f)
+private fun getMilestoneProgress(streakCount: Int): MilestoneProgress {
+    // 초반 마일스톤에서 다음 목표 찾기
+    val nextMilestone = EARLY_MILESTONES.firstOrNull { it > streakCount }
+        ?: run {
+            // 30일 이후: 10단위로 올림 (31→40, 40→50, ...)
+            val lastEarly = EARLY_MILESTONES.last()
+            val overCount = streakCount - lastEarly
+            lastEarly + ((overCount / INTERVAL) + 1) * INTERVAL
+        }
+    val prevMilestone = EARLY_MILESTONES.lastOrNull { it <= streakCount }
+        ?: 0
+    // 30일 넘은 경우 이전 마일스톤도 10단위로 계산
+    val adjustedPrev = if (streakCount >= EARLY_MILESTONES.last()) {
+        nextMilestone - INTERVAL
+    } else {
+        prevMilestone
+    }
+    val progress = if (nextMilestone == adjustedPrev) 1f
+    else (streakCount - adjustedPrev).toFloat() / (nextMilestone - adjustedPrev).toFloat()
+    return MilestoneProgress(adjustedPrev, nextMilestone, progress.coerceIn(0f, 1f))
 }
 
 /**
@@ -47,11 +69,11 @@ fun StreakRewardCard(
     streakCount: Int,
     modifier: Modifier = Modifier,
 ) {
-    val (nextMilestone, progress) = getNextMilestone(streakCount)
-    val remaining = nextMilestone - streakCount
+    val milestone = getMilestoneProgress(streakCount)
+    val remaining = milestone.next - streakCount
 
     val animatedProgress by animateFloatAsState(
-        targetValue = progress,
+        targetValue = milestone.progress,
         animationSpec = tween(durationMillis = 800),
         label = "streakProgress",
     )
@@ -95,14 +117,13 @@ fun StreakRewardCard(
                     .padding(top = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                val prevMilestone = MILESTONES.lastOrNull { it <= streakCount } ?: 0
                 Text(
-                    text = "${prevMilestone}일",
+                    text = "${milestone.prev}일",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = "${nextMilestone}일",
+                    text = "${milestone.next}일",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

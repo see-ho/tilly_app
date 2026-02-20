@@ -12,7 +12,7 @@ fun CoinTransactionEntity.toModel(): CoinTransaction = CoinTransaction(
     amount = amount,
     type = try {
         CoinTransactionType.valueOf(type)
-    } catch (_: Exception) {
+    } catch (_: IllegalArgumentException) {
         CoinTransactionType.UNKNOWN
     },
     description = description,

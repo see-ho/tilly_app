@@ -45,6 +45,7 @@ class MyPageViewModel @Inject constructor(
         notificationFlow,
     ) { weeklyCheck, totalCount, userCoin, notifSettings ->
         MyPageUiState(
+            isLoading = false,
             weeklyCheck = weeklyCheck,
             streakCount = userCoin.streakCount,
             totalTilCount = totalCount,

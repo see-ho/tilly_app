@@ -24,22 +24,18 @@ class NotificationPreferences @Inject constructor(
     val settingsFlow: Flow<NotificationSettings> = _settingsFlow.asStateFlow()
 
     /** 현재 설정값 즉시 반환 */
-    fun getSettings(): NotificationSettings = loadSettings()
+    fun getSettings(): NotificationSettings = _settingsFlow.value
 
     /** 설정값 저장 */
     fun updateSettings(settings: NotificationSettings) {
-        prefs.edit().apply {
-            // 리마인더 알림
-            putBoolean(KEY_REMINDER_ENABLED, settings.reminderEnabled)
-            putInt(KEY_REMINDER_HOUR, settings.reminderHour)
-            putInt(KEY_REMINDER_MINUTE, settings.reminderMinute)
-            // 계획 알람
-            putBoolean(KEY_PLAN_ENABLED, settings.planEnabled)
-            putInt(KEY_PLAN_HOUR, settings.planHour)
-            putInt(KEY_PLAN_MINUTE, settings.planMinute)
-
-            apply()
-        }
+        prefs.edit()
+            .putBoolean(KEY_REMINDER_ENABLED, settings.reminderEnabled)
+            .putInt(KEY_REMINDER_HOUR, settings.reminderHour)
+            .putInt(KEY_REMINDER_MINUTE, settings.reminderMinute)
+            .putBoolean(KEY_PLAN_ENABLED, settings.planEnabled)
+            .putInt(KEY_PLAN_HOUR, settings.planHour)
+            .putInt(KEY_PLAN_MINUTE, settings.planMinute)
+            .apply()
         // StateFlow 갱신
         _settingsFlow.value = settings
     }

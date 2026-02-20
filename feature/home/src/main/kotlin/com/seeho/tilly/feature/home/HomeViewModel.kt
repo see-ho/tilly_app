@@ -14,6 +14,7 @@ import com.seeho.tilly.core.model.ItemCategory
 import com.seeho.tilly.core.model.RewardResult
 import com.seeho.tilly.core.model.ShopItem
 import com.seeho.tilly.core.model.Til
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,7 +48,8 @@ class HomeViewModel @Inject constructor(
                 if (rewardResult != null) {
                     _coinRewardEvent.value = rewardResult
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 // 출석 보상 실패해도 앱 정상 동작
             }
         }

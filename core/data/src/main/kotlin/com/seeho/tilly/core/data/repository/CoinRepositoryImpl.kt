@@ -115,7 +115,7 @@ class CoinRepositoryImpl @Inject constructor(
             recordTransaction(
                 amount = amount,
                 type = CoinTransactionType.AD_REWARD,
-                description = "코인 획득",
+                description = "광고 시청 보상",
             )
         }
     }

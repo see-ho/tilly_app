@@ -52,7 +52,7 @@ fun WeeklyCheckCard(
     }
 
     TillyCard(modifier = modifier) {
-        Column{
+        Column {
             // 제목
             Text(
                 text = "Weekly Check",
