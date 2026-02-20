@@ -13,6 +13,12 @@ interface TilRepository {
     /** 전체 TIL 목록 조회 (최신순) */
     fun getAllTils(): Flow<List<Til>>
 
+    /** TIL 총 개수 조회 */
+    fun getTilCount(): Flow<Int>
+
+    /** 지정 기간 내 TIL 목록 조회 */
+    fun getTilsBetween(startMillis: Long, endMillis: Long): Flow<List<Til>>
+
     /** ID로 단일 TIL 조회 */
     fun getTilById(id: Long): Flow<Til?>
 

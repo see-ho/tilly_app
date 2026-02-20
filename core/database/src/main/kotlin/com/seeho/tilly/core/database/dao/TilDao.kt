@@ -21,6 +21,18 @@ interface TilDao {
     fun getAllTils(): Flow<List<TilEntity>>
 
     /**
+     * TIL 총 개수 조회
+     */
+    @Query("SELECT COUNT(*) FROM tils")
+    fun getTilCount(): Flow<Int>
+
+    /**
+     * 지정 기간 내 TIL 목록 조회
+     */
+    @Query("SELECT * FROM tils WHERE createdAt >= :startMillis AND createdAt <= :endMillis ORDER BY createdAt DESC")
+    fun getTilsBetween(startMillis: Long, endMillis: Long): Flow<List<TilEntity>>
+
+    /**
      * ID로 단일 TIL 조회
      */
     @Query("SELECT * FROM tils WHERE id = :id")
