@@ -11,10 +11,14 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.seeho.tilly.core.designsystem.R
+import com.seeho.tilly.core.model.RewardResult
 import kotlinx.coroutines.delay
 
 /**
@@ -38,10 +43,9 @@ import kotlinx.coroutines.delay
 @Composable
 fun CoinRewardDialog(
     visible: Boolean,
-    amount: Int,
-    reason: String,
+    rewardResult: RewardResult?,
     onDismiss: () -> Unit,
-    autoDismissMs: Long = 2000L,
+    autoDismissMs: Long = 3000L,
 ) {
     // 자동 닫힘 타이머
     if (visible) {
@@ -79,25 +83,72 @@ fun CoinRewardDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 획득 코인 수
-                Text(
-                    text = "+$amount",
-                    color = MaterialTheme.colorScheme.primary,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Monospace,
-                )
+                if (rewardResult != null) {
+                    // 보상 항목이 여러 개면 각각 표시 + 합계
+                    if (rewardResult.rewards.size > 1) {
+                        // 개별 보상 항목
+                        rewardResult.rewards.forEach { item ->
+                            Row(
+                                modifier = Modifier.padding(horizontal = 32.dp, vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = item.description,
+                                    color = Color.White.copy(alpha = 0.7f),
+                                    fontSize = 14.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Text(
+                                    text = "+${item.amount}",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace,
+                                )
+                            }
+                        }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                // 보상 사유
-                Text(
-                    text = reason,
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily.Monospace,
-                )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 32.dp),
+                            color = Color.White.copy(alpha = 0.3f),
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // 합계
+                        Text(
+                            text = "+${rewardResult.totalAmount}",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                        )
+                    } else {
+                        // 단건 보상
+                        val single = rewardResult.rewards.firstOrNull()
+                        if (single != null) {
+                            Text(
+                                text = "+${single.amount}",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = single.description,
+                                color = Color.White.copy(alpha = 0.8f),
+                                fontSize = 14.sp,
+                                fontFamily = FontFamily.Monospace,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
+
