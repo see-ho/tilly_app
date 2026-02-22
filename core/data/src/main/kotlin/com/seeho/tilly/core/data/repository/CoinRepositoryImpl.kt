@@ -195,7 +195,7 @@ class CoinRepositoryImpl @Inject constructor(
         type: CoinTransactionType,
         description: String,
     ) {
-        val currentBalance = coinDao.getUserCoin().firstOrNull()?.balance ?: 0
+        val currentBalance = coinDao.getBalanceSync() ?: 0
         coinTransactionDao.insertTransaction(
             CoinTransactionEntity(
                 amount = amount,
