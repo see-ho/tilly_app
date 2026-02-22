@@ -1,9 +1,17 @@
 package com.seeho.tilly.core.data.repository
 
 import com.seeho.tilly.core.data.mapper.toModel
+import com.seeho.tilly.core.data.reward.RewardPolicy
+import com.seeho.tilly.core.database.TillyDatabase
 import com.seeho.tilly.core.database.dao.CoinDao
+import com.seeho.tilly.core.database.dao.CoinTransactionDao
 import com.seeho.tilly.core.database.entity.CoinEntity
+import com.seeho.tilly.core.database.entity.CoinTransactionEntity
+import com.seeho.tilly.core.database.withDatabaseTransaction
 import com.seeho.tilly.core.domain.repository.CoinRepository
+import com.seeho.tilly.core.model.CoinTransaction
+import com.seeho.tilly.core.model.CoinTransactionType
+import com.seeho.tilly.core.model.RewardResult
 import com.seeho.tilly.core.model.UserCoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -17,20 +25,14 @@ import javax.inject.Inject
 
 /**
  * CoinRepository 구현체
- * 코인 잔액 관리 + 일일 보상 플래그 + 스트릭 카운터
+ * 코인 잔액 관리 + 일일 보상 플래그 + 스트릭 카운터 + 거래 내역 기록
+ * 코인 변경과 거래 내역 기록은 withTransaction으로 원자적으로 묶어 데이터 무결성 보장
  */
 class CoinRepositoryImpl @Inject constructor(
     private val coinDao: CoinDao,
+    private val coinTransactionDao: CoinTransactionDao,
+    private val database: TillyDatabase,
 ) : CoinRepository {
-
-    companion object {
-        // 보상 금액 상수
-        private const val ATTENDANCE_REWARD = 5     // 출석 보상
-        private const val TIL_REWARD = 20           // TIL 작성 보상
-        private const val STREAK_3_BONUS = 10       // 3일 연속 보너스
-        private const val STREAK_7_BONUS = 30       // 7일 연속 보너스
-        private const val STREAK_30_BONUS = 100     // 30일 연속 보너스
-    }
 
     // 코인 조작 동시성 보호용 Mutex
     private val coinMutex = Mutex()
@@ -41,44 +43,87 @@ class CoinRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun claimAttendance(): Boolean = coinMutex.withLock {
-        ensureCoinExists()
-        resetDailyFlagsIfNeeded()
-
-        val current = coinDao.getUserCoin().firstOrNull() ?: return@withLock false
-        // 이미 출석 보상을 받았으면 false 반환
-        if (current.dailyAttendanceClaimed) return@withLock false
-
-        coinDao.addCoins(ATTENDANCE_REWARD)
-        coinDao.setDailyAttendanceClaimed(true)
-        true
+    override fun getCoinTransactions(): Flow<List<CoinTransaction>> {
+        return coinTransactionDao.getAllTransactions().map { entities ->
+            entities.map { it.toModel() }
+        }
     }
 
-    override suspend fun claimTilReward(): Boolean = coinMutex.withLock {
+    override suspend fun claimAttendance(): RewardResult? = coinMutex.withLock {
         ensureCoinExists()
         resetDailyFlagsIfNeeded()
 
-        val current = coinDao.getUserCoin().firstOrNull() ?: return@withLock false
-        // 오늘 이미 TIL 보상을 받았으면 false 반환
-        if (current.dailyTilClaimed) return@withLock false
+        val current = coinDao.getUserCoin().firstOrNull() ?: return@withLock null
+        // 이미 출석 보상을 받았으면 null 반환
+        if (current.dailyAttendanceClaimed) return@withLock null
 
-        // TIL 기본 보상 지급
-        coinDao.addCoins(TIL_REWARD)
-        coinDao.setDailyTilClaimed(true)
+        val reward = RewardPolicy.attendanceReward()
 
-        // 스트릭 업데이트 + 보너스 지급
-        val newStreak = current.streakCount + 1
-        coinDao.updateStreakCount(newStreak)
-        checkAndApplyStreakBonus(newStreak)
+        // 코인 변경 + 거래 내역 처리
+        database.withDatabaseTransaction {
+            coinDao.addCoins(reward.amount)
+            coinDao.setDailyAttendanceClaimed(true)
+            recordTransaction(
+                amount = reward.amount,
+                type = CoinTransactionType.ATTENDANCE,
+                description = reward.description,
+            )
+        }
+        RewardResult(rewards = listOf(reward))
+    }
 
-        true
+    override suspend fun claimTilReward(): RewardResult? = coinMutex.withLock {
+        ensureCoinExists()
+        resetDailyFlagsIfNeeded()
+
+        val current = coinDao.getUserCoin().firstOrNull() ?: return@withLock null
+        // 오늘 이미 TIL 보상을 받았으면 null 반환
+        if (current.dailyTilClaimed) return@withLock null
+
+        // 보상 항목 수집
+        val rewards = mutableListOf(RewardPolicy.tilReward())
+        val tilReward = rewards.first()
+
+        database.withDatabaseTransaction {
+            coinDao.addCoins(tilReward.amount)
+            coinDao.setDailyTilClaimed(true)
+            recordTransaction(
+                amount = tilReward.amount,
+                type = CoinTransactionType.TIL_REWARD,
+                description = tilReward.description,
+            )
+
+            // 스트릭 업데이트 + 보너스 지급
+            val newStreak = current.streakCount + 1
+            coinDao.updateStreakCount(newStreak)
+
+            // 스트릭 보너스가 있으면 rewards에 추가
+            RewardPolicy.getStreakBonus(newStreak)?.let { bonus ->
+                coinDao.addCoins(bonus.amount)
+                rewards.add(bonus)
+                recordTransaction(
+                    amount = bonus.amount,
+                    type = CoinTransactionType.STREAK_BONUS,
+                    description = bonus.description,
+                )
+            }
+        }
+
+        RewardResult(rewards = rewards)
     }
 
     override suspend fun addCoins(amount: Int) {
         require(amount > 0) { "추가할 코인은 양수여야 합니다: $amount" }
         coinMutex.withLock {
             ensureCoinExists()
-            coinDao.addCoins(amount)
+            database.withDatabaseTransaction {
+                coinDao.addCoins(amount)
+                recordTransaction(
+                    amount = amount,
+                    type = CoinTransactionType.AD_REWARD,
+                    description = "광고 시청 보상",
+                )
+            }
         }
     }
 
@@ -89,7 +134,14 @@ class CoinRepositoryImpl @Inject constructor(
             val current = coinDao.getUserCoin().firstOrNull() ?: return@withLock false
             // 잔액 부족 체크
             if (current.balance < amount) return@withLock false
-            coinDao.deductCoins(amount)
+            database.withDatabaseTransaction {
+                coinDao.deductCoins(amount)
+                recordTransaction(
+                    amount = -amount,
+                    type = CoinTransactionType.PURCHASE,
+                    description = "아이템 구매",
+                )
+            }
             true
         }
     }
@@ -133,12 +185,25 @@ class CoinRepositoryImpl @Inject constructor(
         }
     }
 
-    /** 스트릭 보너스 체크 및 지급 */
-    private suspend fun checkAndApplyStreakBonus(streak: Int) {
-        when (streak) {
-            3 -> coinDao.addCoins(STREAK_3_BONUS)
-            7 -> coinDao.addCoins(STREAK_7_BONUS)
-            30 -> coinDao.addCoins(STREAK_30_BONUS)
-        }
+
+
+    /**
+     * 현재 잔액을 조회하여 balanceAfter를 채움
+     */
+    private suspend fun recordTransaction(
+        amount: Int,
+        type: CoinTransactionType,
+        description: String,
+    ) {
+        val currentBalance = coinDao.getBalanceSync() ?: 0
+        coinTransactionDao.insertTransaction(
+            CoinTransactionEntity(
+                amount = amount,
+                type = type.name,
+                description = description,
+                balanceAfter = currentBalance,
+                createdAt = System.currentTimeMillis(),
+            ),
+        )
     }
 }

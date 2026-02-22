@@ -102,8 +102,7 @@ fun EditorScreen(
         // 코인 보상 다이얼로그
         CoinRewardDialog(
             visible = coinRewardEvent != null,
-            amount = coinRewardEvent?.first ?: 0,
-            reason = coinRewardEvent?.second ?: "",
+            rewardResult = coinRewardEvent,
             onDismiss = viewModel::consumeCoinRewardEvent,
         )
     }

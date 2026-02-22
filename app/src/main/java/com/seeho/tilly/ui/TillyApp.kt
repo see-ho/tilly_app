@@ -32,6 +32,8 @@ import com.seeho.tilly.feature.home.navigation.Home
 import com.seeho.tilly.feature.home.navigation.homeScreen
 import com.seeho.tilly.feature.mypage.navigation.MyPageRoute
 import com.seeho.tilly.feature.mypage.navigation.myPageScreen
+import com.seeho.tilly.feature.mypage.navigation.coinHistoryScreen
+import com.seeho.tilly.feature.mypage.navigation.navigateToCoinHistory
 import com.seeho.tilly.feature.shop.navigation.ShopRoute
 import com.seeho.tilly.feature.shop.navigation.shopScreen
 import com.seeho.tilly.feature.statistics.navigation.statisticsScreen
@@ -109,7 +111,14 @@ fun TillyApp(
                 )
                 statisticsScreen()
                 shopScreen()
-                myPageScreen()
+                myPageScreen(
+                    onCoinHistoryClick = {
+                        appState.navController.navigateToCoinHistory()
+                    },
+                )
+                coinHistoryScreen(
+                    onBackClick = { appState.navController.popBackStack() },
+                )
                 editorScreen(
                     onBackClick = { appState.navController.popBackStack() },
                     onShowDetail = { tilId ->

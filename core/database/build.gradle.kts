@@ -16,8 +16,7 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:common"))
 
-    // Room
-    implementation(libs.room.runtime)
+    api(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
     implementation(libs.kotlinx.serialization.json)

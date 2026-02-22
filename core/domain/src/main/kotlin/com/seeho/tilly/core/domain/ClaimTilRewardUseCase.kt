@@ -1,6 +1,7 @@
 package com.seeho.tilly.core.domain
 
 import com.seeho.tilly.core.domain.repository.CoinRepository
+import com.seeho.tilly.core.model.RewardResult
 import javax.inject.Inject
 
 /**
@@ -10,8 +11,9 @@ import javax.inject.Inject
 class ClaimTilRewardUseCase @Inject constructor(
     private val coinRepository: CoinRepository,
 ) {
-    /** @return 보상 지급 성공 여부 (이미 수령한 경우 false) */
-    suspend operator fun invoke(): Boolean {
+    /** @return 보상 결과 (보상 항목 리스트), 이미 수령한 경우 null */
+    suspend operator fun invoke(): RewardResult? {
         return coinRepository.claimTilReward()
     }
 }
+

@@ -11,8 +11,14 @@ data object MyPageRoute
 
 fun NavController.navigateToMyPage() = navigate(MyPageRoute)
 
-fun NavGraphBuilder.myPageScreen() {
+fun NavGraphBuilder.myPageScreen(
+    onOpenSourceClick: () -> Unit = {},
+    onCoinHistoryClick: () -> Unit = {},
+) {
     composable<MyPageRoute> {
-        MyPageScreen()
+        MyPageScreen(
+            onOpenSourceClick = onOpenSourceClick,
+            onCoinHistoryClick = onCoinHistoryClick,
+        )
     }
 }

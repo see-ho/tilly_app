@@ -8,6 +8,7 @@ import com.seeho.tilly.core.domain.SaveTilUseCase
 import com.seeho.tilly.core.domain.UpdateTilUseCase
 import com.seeho.tilly.core.domain.AnalyzeTilUseCase
 import com.seeho.tilly.core.domain.ClaimTilRewardUseCase
+import com.seeho.tilly.core.model.RewardResult
 import com.seeho.tilly.core.model.Til
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -41,9 +42,9 @@ class EditorViewModel @Inject constructor(
     private val _event = MutableSharedFlow<EditorEvent>()
     val event: SharedFlow<EditorEvent> = _event.asSharedFlow()
 
-    // 코인 보상 이벤트 (amount, reason) — 보상 다이얼로그 표시용
-    private val _coinRewardEvent = MutableStateFlow<Pair<Int, String>?>(null)
-    val coinRewardEvent: StateFlow<Pair<Int, String>?> = _coinRewardEvent.asStateFlow()
+    // 코인 보상 이벤트 — 보상 다이얼로그 표시용
+    private val _coinRewardEvent = MutableStateFlow<RewardResult?>(null)
+    val coinRewardEvent: StateFlow<RewardResult?> = _coinRewardEvent.asStateFlow()
 
     // 저장 성공 시 네비게이션할 TIL ID (보상 다이얼로그 닫힌 후 사용)
     private val _pendingNavigationId = MutableStateFlow<Long?>(null)
@@ -146,11 +147,11 @@ class EditorViewModel @Inject constructor(
                 // 새 TIL 작성 시에만 코인 보상 지급 (수정 모드 제외)
                 if (tilId == null) {
                     try {
-                        val claimed = claimTilRewardUseCase()
-                        if (claimed) {
+                        val rewardResult = claimTilRewardUseCase()
+                        if (rewardResult != null) {
                             // 보상 수령 성공 → 다이얼로그 표시 후 네비게이션
                             _pendingNavigationId.value = savedId
-                            _coinRewardEvent.value = 20 to "TIL 작성 보상"
+                            _coinRewardEvent.value = rewardResult
                             return@launch // 네비게이션은 다이얼로그 닫힌 후
                         }
                     } catch (_: Exception) {

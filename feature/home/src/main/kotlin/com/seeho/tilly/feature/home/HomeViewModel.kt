@@ -11,8 +11,10 @@ import com.seeho.tilly.core.domain.SaveTilUseCase
 import com.seeho.tilly.core.model.Difficulty
 import com.seeho.tilly.core.model.Emotion
 import com.seeho.tilly.core.model.ItemCategory
+import com.seeho.tilly.core.model.RewardResult
 import com.seeho.tilly.core.model.ShopItem
 import com.seeho.tilly.core.model.Til
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,21 +36,21 @@ class HomeViewModel @Inject constructor(
     getShopItemsUseCase: GetShopItemsUseCase,
 ) : ViewModel() {
 
-    // 코인 보상 이벤트 (amount, reason)
-    private val _coinRewardEvent = MutableStateFlow<Pair<Int, String>?>(null)
-    val coinRewardEvent: StateFlow<Pair<Int, String>?> = _coinRewardEvent.asStateFlow()
+    // 코인 보상 이벤트
+    private val _coinRewardEvent = MutableStateFlow<RewardResult?>(null)
+    val coinRewardEvent: StateFlow<RewardResult?> = _coinRewardEvent.asStateFlow()
 
     init {
         // 홈 화면 진입 시 출석 보상 수령 시도 (5코인, 1일 1회)
         viewModelScope.launch {
             try {
-                val claimed = claimAttendanceUseCase()
-                if (claimed) {
-                    _coinRewardEvent.value = 5 to "출석 보상"
+                val rewardResult = claimAttendanceUseCase()
+                if (rewardResult != null) {
+                    _coinRewardEvent.value = rewardResult
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 // 출석 보상 실패해도 앱 정상 동작
-                //TODO 고민
             }
         }
     }
@@ -109,7 +111,7 @@ class HomeViewModel @Inject constructor(
                 deleteTilUseCase(id)
                 dismissDeleteDialog()
             } catch (e: Exception) {
-                // 에러 처리는 UI State에서 Error로 전파되거나 별도 이벤트로 처리
+                // TODO 삭제 실패
                 e.printStackTrace()
             }
         }

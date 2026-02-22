@@ -47,4 +47,8 @@ interface CoinDao {
     /** 일일 플래그 리셋 (날짜 변경 시) */
     @Query("UPDATE user_coin SET dailyTilClaimed = 0, dailyAttendanceClaimed = 0, dailyAdWatchCount = 0, lastClaimedDate = :date WHERE id = 1")
     suspend fun resetDailyFlags(date: String)
+
+    /** 트랜잭션 내에서 현재 잔액을 즉시 조회 */
+    @Query("SELECT balance FROM user_coin WHERE id = 1")
+    suspend fun getBalanceSync(): Int?
 }

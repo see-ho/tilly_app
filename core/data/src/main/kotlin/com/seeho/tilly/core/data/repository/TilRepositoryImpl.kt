@@ -23,6 +23,16 @@ class TilRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getTilCount(): Flow<Int> {
+        return tilDao.getTilCount()
+    }
+
+    override fun getTilsBetween(startMillis: Long, endMillis: Long): Flow<List<Til>> {
+        return tilDao.getTilsBetween(startMillis, endMillis).map { entities ->
+            entities.map { it.toModel() }
+        }
+    }
+
     override fun getTilById(id: Long): Flow<Til?> {
         return tilDao.getTilById(id).map { entity ->
             entity?.toModel()
