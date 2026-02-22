@@ -1,6 +1,5 @@
 package com.seeho.tilly.core.data.repository
 
-import androidx.room.withTransaction
 import com.seeho.tilly.core.data.mapper.toModel
 import com.seeho.tilly.core.data.reward.RewardPolicy
 import com.seeho.tilly.core.database.TillyDatabase
@@ -8,6 +7,7 @@ import com.seeho.tilly.core.database.dao.CoinDao
 import com.seeho.tilly.core.database.dao.CoinTransactionDao
 import com.seeho.tilly.core.database.entity.CoinEntity
 import com.seeho.tilly.core.database.entity.CoinTransactionEntity
+import com.seeho.tilly.core.database.withDatabaseTransaction
 import com.seeho.tilly.core.domain.repository.CoinRepository
 import com.seeho.tilly.core.model.CoinTransaction
 import com.seeho.tilly.core.model.CoinTransactionType
@@ -60,7 +60,7 @@ class CoinRepositoryImpl @Inject constructor(
         val reward = RewardPolicy.attendanceReward()
 
         // 코인 변경 + 거래 내역 처리
-        database.withTransaction {
+        database.withDatabaseTransaction {
             coinDao.addCoins(reward.amount)
             coinDao.setDailyAttendanceClaimed(true)
             recordTransaction(
@@ -84,7 +84,7 @@ class CoinRepositoryImpl @Inject constructor(
         val rewards = mutableListOf(RewardPolicy.tilReward())
         val tilReward = rewards.first()
 
-        database.withTransaction {
+        database.withDatabaseTransaction {
             coinDao.addCoins(tilReward.amount)
             coinDao.setDailyTilClaimed(true)
             recordTransaction(
@@ -116,7 +116,7 @@ class CoinRepositoryImpl @Inject constructor(
         require(amount > 0) { "추가할 코인은 양수여야 합니다: $amount" }
         coinMutex.withLock {
             ensureCoinExists()
-            database.withTransaction {
+            database.withDatabaseTransaction {
                 coinDao.addCoins(amount)
                 recordTransaction(
                     amount = amount,
@@ -134,7 +134,7 @@ class CoinRepositoryImpl @Inject constructor(
             val current = coinDao.getUserCoin().firstOrNull() ?: return@withLock false
             // 잔액 부족 체크
             if (current.balance < amount) return@withLock false
-            database.withTransaction {
+            database.withDatabaseTransaction {
                 coinDao.deductCoins(amount)
                 recordTransaction(
                     amount = -amount,

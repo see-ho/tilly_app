@@ -3,6 +3,7 @@ package com.seeho.tilly.core.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.withTransaction
 import com.seeho.tilly.core.database.converter.TagListConverter
 import com.seeho.tilly.core.database.dao.CoinDao
 import com.seeho.tilly.core.database.dao.CoinTransactionDao
@@ -44,3 +45,6 @@ abstract class TillyDatabase : RoomDatabase() {
     abstract fun coinTransactionDao(): CoinTransactionDao
     abstract fun shopDao(): ShopDao
 }
+
+suspend fun <T> TillyDatabase.withDatabaseTransaction(block: suspend () -> T): T =
+    withTransaction { block() }
