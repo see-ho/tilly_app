@@ -25,9 +25,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             // 장착된 테마를 실시간 관찰 → 앱 전체 색상 즉시 변경
             val currentTheme by mainViewModel.currentAppTheme.collectAsStateWithLifecycle()
+            // 오늘 작성한 TIL ID (FAB 상태 전환용)
+            val todayTilId by mainViewModel.todayTilId.collectAsStateWithLifecycle()
 
             TillyTheme(appTheme = currentTheme) {
-                TillyApp()
+                TillyApp(todayTilId = todayTilId)
             }
         }
     }
