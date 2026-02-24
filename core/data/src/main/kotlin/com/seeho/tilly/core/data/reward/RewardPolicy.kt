@@ -12,6 +12,11 @@ object RewardPolicy {
     const val ATTENDANCE_REWARD = 5       // 출석 보상
     const val TIL_REWARD = 20            // TIL 작성 보상
 
+    // API 호출 제한 상수
+    const val FREE_DAILY_ANALYSIS = 3     // 일일 무료 분석 횟수
+    const val ANALYSIS_COIN_COST = 30     // 추가 분석 코인 비용
+    const val RETROSPECTIVE_COIN_COST = 50 // 회고 재생성 코인 비용
+
     // 스트릭 보너스 금액
     private const val STREAK_3_BONUS = 10
     private const val STREAK_7_BONUS = 30
