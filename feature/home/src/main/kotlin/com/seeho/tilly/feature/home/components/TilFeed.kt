@@ -27,7 +27,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.tooling.preview.Preview
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
-import com.seeho.tilly.core.model.Difficulty
 import com.seeho.tilly.core.model.ItemCategory
 import com.seeho.tilly.core.model.ShopItem
 import com.seeho.tilly.core.model.Til
@@ -118,8 +117,9 @@ fun TilFeed(
                     content = {
                         TilFeedItem(
                             title = til.title,
-                            emotionScore = til.emotionScore ?: 3,
-                            difficultyLevel = til.difficultyLevel ?: Difficulty.NORMAL,
+                            emotionScore = til.emotionScore,
+                            emotion = til.emotion,
+                            difficultyLevel = til.difficultyLevel,
                             tags = til.tags,
                             content = til.learned,
                             onClick = { onTilClick(til.id) },
