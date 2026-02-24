@@ -10,31 +10,33 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.seeho.tilly.core.designsystem.component.TillyAlertDialog
 import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
+import com.seeho.tilly.core.designsystem.component.TillySnackbarHost
 import com.seeho.tilly.core.designsystem.component.TillyTopAppBar
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.core.model.Difficulty
@@ -67,7 +69,7 @@ fun TilDetailScreen(
             when (event) {
                 TilDetailEvent.DeleteSuccess -> onDeleteClick()
                 TilDetailEvent.DeleteFailed -> {
-                    // TODO: 삭제 실패 알림
+                    snackbarHostState.showSnackbar("삭제에 실패했습니다. 다시 시도해주세요.")
                 }
             }
         }
@@ -115,24 +117,36 @@ fun TilDetailContent(
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
+    // 삭제 확인 다이얼로그 표시 상태
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // 삭제 확인 다이얼로그
+    if (showDeleteDialog) {
+        TillyAlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            onConfirm = {
+                showDeleteDialog = false
+                onDeleteClick()
+            },
+            title = "TIL 삭제",
+            text = "이 TIL을 정말 삭제하시겠습니까?\n삭제된 TIL은 복구할 수 없습니다.",
+            confirmText = "삭제",
+            dismissText = "취소",
+        )
+    }
+
     Scaffold(
         snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    containerColor = Color.Black,
-                    contentColor = Color.White,
-                )
-            }
+            TillySnackbarHost(hostState = snackbarHostState)
         },
         topBar = {
             TillyTopAppBar(
-                titleText = "TIL Details",
+                titleText = "TIL 상세",
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = "뒤로가기",
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -142,16 +156,16 @@ fun TilDetailContent(
                     IconButton(onClick = onEditClick) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit",
+                            contentDescription = "수정",
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                    // 삭제 버튼
-                    IconButton(onClick = onDeleteClick) {
+                    // 삭제 버튼 - 다이얼로그로 확인 후 삭제
+                    IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                            contentDescription = "삭제",
+                            tint = MaterialTheme.colorScheme.error
                         )
                     }
                 }
@@ -174,28 +188,26 @@ fun TilDetailContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             TilDetailSection(
-                title = "What I Learned",
+                title = "오늘 배운 것",
                 content = til.learned,
                 icon = Icons.Default.Info
             )
 
-            //TODO ICON 수정
             til.difficulty?.let {
                 Spacer(modifier = Modifier.height(24.dp))
                 TilDetailSection(
-                    title = "What Was Difficult",
+                    title = "어려웠던 점",
                     content = it,
-                    icon = Icons.Default.Warning
+                    icon = Icons.Default.ErrorOutline
                 )
             }
 
-            //TODO ICON 수정
             til.tomorrow?.let {
                 Spacer(modifier = Modifier.height(24.dp))
                 TilDetailSection(
-                    title = "Tomorrow's Plan",
+                    title = "내일 할 일",
                     content = it,
-                    icon = Icons.Default.Edit
+                    icon = Icons.Default.CalendarToday
                 )
             }
 
