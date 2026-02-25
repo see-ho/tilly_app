@@ -6,3 +6,8 @@ plugins {
 android {
     namespace = "com.seeho.tilly.core.common"
 }
+
+dependencies {
+    implementation(project(":core:model"))
+    implementation(libs.androidx.work.runtime.ktx)
+}
