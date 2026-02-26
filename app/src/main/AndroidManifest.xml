@@ -49,6 +49,19 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
+        <!-- 연속 작성 스트릭 위젯 -->
+        <receiver
+            android:name=".widget.StreakWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_streak_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/streak_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

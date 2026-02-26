@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Tilly</string>
+    <string name="widget_streak_description">연속 TIL 작성 일수를 표시합니다</string>
+    <string name="widget_streak_label">Tilly 스트릭</string>
 </resources>
