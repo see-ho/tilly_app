@@ -10,6 +10,7 @@ import com.seeho.tilly.core.domain.AnalyzeTilUseCase
 import com.seeho.tilly.core.domain.ClaimTilRewardUseCase
 import com.seeho.tilly.core.domain.repository.CoinRepository
 import com.seeho.tilly.core.common.util.NetworkMonitor
+import com.seeho.tilly.core.common.widget.WidgetUpdater
 import com.seeho.tilly.core.model.RewardResult
 import com.seeho.tilly.core.model.Til
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +36,7 @@ class EditorViewModel @Inject constructor(
     private val claimTilRewardUseCase: ClaimTilRewardUseCase,
     private val coinRepository: CoinRepository,
     private val networkMonitor: NetworkMonitor,
+    private val widgetUpdater: WidgetUpdater,
 ) : ViewModel() {
 
     // Navigation 인자에서 tilId 추출 (null이면 생성 모드)
@@ -190,6 +192,9 @@ class EditorViewModel @Inject constructor(
                     saveTilUseCase(til)
                 }
 
+                // 위젯 즉시 갱신 (스트릭 + 주간 체크)
+                try { widgetUpdater.updateAll() } catch (_: Exception) {}
+
                 // 새 TIL 작성 시에만 코인 보상 지급 (수정 모드 제외)
                 if (tilId == null) {
                     try {
@@ -277,6 +282,9 @@ class EditorViewModel @Inject constructor(
 
                 val savedId = saveTilUseCase(til)
 
+                // 위젯 즉시 갱신
+                try { widgetUpdater.updateAll() } catch (_: Exception) {}
+
                 // TIL 작성 보상은 오프라인에서도 지급
                 try {
                     val rewardResult = claimTilRewardUseCase()
@@ -311,23 +319,32 @@ class EditorViewModel @Inject constructor(
     private fun executeReanalysis() {
         val state = _uiState.value
         viewModelScope.launch {
-            _uiState.update { it.copy(isAnalyzing = true) }
-            // 분석 횟수 소비
-            val consumed = coinRepository.consumeAnalysis()
-            if (!consumed) {
-                _uiState.update { it.copy(isAnalyzing = false) }
-                _event.emit(EditorEvent.AnalysisLimitReached)
+            // 네트워크 확인
+            if (!networkMonitor.isOnline()) {
+                _event.emit(EditorEvent.SaveFailed)
                 return@launch
             }
+
+            _uiState.update { it.copy(isAnalyzing = true) }
             try {
+                // 1. 먼저 AI 분석 실행 (네트워크 호출)
                 val result = analyzeTilUseCase(
                     title = state.title,
                     learned = state.todayLearning,
                     difficulty = state.difficulties.ifBlank { null },
                     tomorrow = state.tomorrowPlan.ifBlank { null }
                 ).getOrNull()
+
                 if (result != null) {
-                    // 분석 결과 캐싱
+                    // 2. 분석 성공 후에 횟수/코인 차감 (실패 시 코인 보호)
+                    val consumed = coinRepository.consumeAnalysis()
+                    if (!consumed) {
+                        _uiState.update { it.copy(isAnalyzing = false) }
+                        _event.emit(EditorEvent.AnalysisLimitReached)
+                        return@launch
+                    }
+
+                    // 3. 분석 결과 캐싱
                     _uiState.update {
                         it.copy(
                             existingTags = result.tags,
@@ -339,15 +356,17 @@ class EditorViewModel @Inject constructor(
                     }
                     _uiState.update { it.copy(isAnalyzing = false) }
 
-                    // 재분석 성공 → 자동 저장 + 디테일 이동
+                    // 4. 재분석 성공 → 자동 저장 + 디테일 이동
                     saveAfterReanalysis()
                 } else {
                     _uiState.update { it.copy(isAnalyzing = false) }
+                    _event.emit(EditorEvent.SaveFailed)
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
                 _uiState.update { it.copy(isAnalyzing = false) }
+                _event.emit(EditorEvent.SaveFailed)
             } finally {
                 loadAnalysisInfo()
             }
@@ -375,6 +394,8 @@ class EditorViewModel @Inject constructor(
             )
             if (tilId != null) {
                 updateTilUseCase(til)
+                // 위젯 즉시 갱신
+                try { widgetUpdater.updateAll() } catch (_: Exception) {}
                 _event.emit(EditorEvent.SaveSuccess(tilId))
             }
         } catch (e: CancellationException) {

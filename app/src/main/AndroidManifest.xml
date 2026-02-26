@@ -62,6 +62,19 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/streak_widget_info" />
         </receiver>
+
+        <!-- 주간 체크 위젯 -->
+        <receiver
+            android:name=".widget.WeeklyCheckWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_weekly_check_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weekly_check_widget_info" />
+        </receiver>
     </application>
 
 </manifest>
