@@ -77,14 +77,14 @@ class StreakWidget : GlanceAppWidget() {
                             Image(
                                 provider = ImageProvider(DesignR.drawable.ic_fire),
                                 contentDescription = "불꽃",
-                                modifier = GlanceModifier.size(22.dp),
+                                modifier = GlanceModifier.size(36.dp),
                             )
                             Spacer(modifier = GlanceModifier.width(4.dp))
                             Text(
                                 text = "$streakCount",
                                 style = TextStyle(
                                     color = ColorProvider(AccentMint),
-                                    fontSize = 24.sp,
+                                    fontSize = 28.sp,
                                     fontWeight = FontWeight.Bold,
                                 ),
                             )
@@ -97,7 +97,7 @@ class StreakWidget : GlanceAppWidget() {
                             text = motivationMessage,
                             style = TextStyle(
                                 color = ColorProvider(SubtleGray),
-                                fontSize = 11.sp,
+                                fontSize = 14.sp,
                             ),
                         )
                     }
