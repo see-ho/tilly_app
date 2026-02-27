@@ -22,25 +22,29 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.style.TextOverflow
+import com.seeho.tilly.core.designsystem.component.EmotionLabelBadge
 import com.seeho.tilly.core.designsystem.component.EmotionScoreIndicator
 import com.seeho.tilly.core.designsystem.component.TillyCard
 import com.seeho.tilly.core.designsystem.component.TillyTag
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
+import com.seeho.tilly.core.designsystem.util.color
 import com.seeho.tilly.core.designsystem.util.iconRes
 import com.seeho.tilly.core.model.Difficulty
+import com.seeho.tilly.core.model.Emotion
 
 @Composable
 fun TilFeedItem(
     title: String,
-    emotionScore: Int,
-    difficultyLevel: Difficulty,
+    emotionScore: Int?,
+    emotion: Emotion?,
+    difficultyLevel: Difficulty?,
     tags: List<String>,
     content: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // EnumResources의 확장 프로퍼티로 난이도 아이콘 결정
-    val difficultyRes = difficultyLevel.iconRes
+    // 난이도 아이콘 (분석 안 됐으면 null)
+    val difficultyRes = difficultyLevel?.iconRes
 
     TillyCard(
         modifier = modifier.fillMaxWidth(),
@@ -50,13 +54,15 @@ fun TilFeedItem(
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // 난이도 아이콘
-            androidx.compose.foundation.Image(
-                bitmap = ImageBitmap.imageResource(id = difficultyRes),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                filterQuality = FilterQuality.None
-            )
+            // 난이도 아이콘 (분석 있을 때만 표시)
+            if (difficultyRes != null) {
+                androidx.compose.foundation.Image(
+                    bitmap = ImageBitmap.imageResource(id = difficultyRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    filterQuality = FilterQuality.None
+                )
+            }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
@@ -83,7 +89,21 @@ fun TilFeedItem(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                EmotionScoreIndicator(score = emotionScore)
+                // 감정 인디케이터 + 라벨 뱃지 (분석 있을 때만 표시)
+                if (emotionScore != null) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        EmotionScoreIndicator(score = emotionScore)
+                        if (emotion != null) {
+                            EmotionLabelBadge(
+                                label = emotion.label,
+                                color = emotion.color,
+                            )
+                        }
+                    }
+                }
 
             }
         }
@@ -99,9 +119,10 @@ private fun TilEntryItemPreview() {
                 TilFeedItem(
                     title = "Preview TIL Title",
                     emotionScore = 4,
+                    emotion = Emotion.ACHIEVEMENT,
                     difficultyLevel = Difficulty.HARD,
                     tags = listOf("jetpack", "compose", "ui"),
-                    content = "This is a preview content for the TIL entry item. It shows how the title and tags are rendered.",
+                    content = "This is a preview content for the TIL entry item.",
                     onClick = {}
                 )
             }

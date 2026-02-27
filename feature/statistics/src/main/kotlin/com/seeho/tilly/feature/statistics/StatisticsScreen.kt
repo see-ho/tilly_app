@@ -113,20 +113,33 @@ private fun StatisticsContent(
             } else {
                 // 1. 월간 감정 추세 꺾은선 그래프
                 StatisticsCard(title = "월간 감정 점수 추세") {
-                    EmotionTrendChart(
-                        data = uiState.emotionTrendData,
-                        daysInMonth = uiState.daysInMonth,
-                    )
+                    if (uiState.emotionTrendData.isEmpty()) {
+                        EmptyChartMessage(text = "감정 데이터가 아직 없어요")
+                    } else {
+                        EmotionTrendChart(
+                            data = uiState.emotionTrendData,
+                            daysInMonth = uiState.daysInMonth,
+                        )
+                    }
                 }
 
                 // 2. 학습 키워드 도넛 차트
                 StatisticsCard(title = "학습 키워드 분포") {
-                    LearningKeywordChart(data = uiState.learningKeywords)
+                    if (uiState.learningKeywords.isEmpty()) {
+                        EmptyChartMessage(text = "키워드 데이터가 아직 없어요")
+                    } else {
+                        LearningKeywordChart(data = uiState.learningKeywords)
+                    }
                 }
 
                 // 3. 감정 바 그래프
                 StatisticsCard(title = "감정 그래프") {
-                    EmotionDistributionChart(data = uiState.emotionDistribution)
+                    val hasEmotionData = uiState.emotionDistribution.any { it.count > 0f }
+                    if (!hasEmotionData) {
+                        EmptyChartMessage(text = "감정 분포 데이터가 아직 없어요")
+                    } else {
+                        EmotionDistributionChart(data = uiState.emotionDistribution)
+                    }
                 }
 
                 // 4. 월간 회고
@@ -142,6 +155,36 @@ private fun StatisticsContent(
                     onGenerateClick = onGenerateRetrospective,
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
+    }
+}
+
+/** 차트 데이터가 없을 때 표시하는 빈 상태 메시지 */
+@Composable
+private fun EmptyChartMessage(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(120.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "// No data",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
