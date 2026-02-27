@@ -8,6 +8,7 @@ import com.seeho.tilly.core.common.notification.NotificationHelper
 import com.seeho.tilly.core.common.notification.NotificationScheduler
 import com.seeho.tilly.core.database.dao.TilDao
 import com.seeho.tilly.core.datastore.NotificationPreferences
+import com.seeho.tilly.core.model.Emotion
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.Calendar
@@ -42,7 +43,8 @@ class ReminderWorker @AssistedInject constructor(
         if (todayCount == 0) {
             // 최근 TIL의 감정에 따라 격려 멘트 결정
             val latestTil = tilDao.getLatestTil()
-            val encouragement = getEncouragementByEmotion(latestTil?.emotion)
+            val emotion = latestTil?.emotion?.let { Emotion.fromLabel(it) }
+            val encouragement = getEncouragementByEmotion(emotion)
             notificationHelper.showReminderNotification(encouragement)
         }
 
@@ -58,14 +60,14 @@ class ReminderWorker @AssistedInject constructor(
     /**
      * 최근 감정에 따른 격려 멘트 생성
      */
-    private fun getEncouragementByEmotion(emotion: String?): String {
+    private fun getEncouragementByEmotion(emotion: Emotion?): String {
         return when (emotion) {
-            "성취감" -> "어제의 성취감을 이어가볼까요? 🔥"
-            "만족" -> "꾸준히 잘하고 있어요! 오늘도 파이팅 💪"
-            "평범" -> "작은 기록이 모여 큰 성장이 됩니다 ✨"
-            "어려움" -> "어려운 건 성장하고 있다는 증거예요! 응원해요 💙"
-            "좌절" -> "괜찮아요, 한 줄이라도 적어보는 게 중요해요 🤗"
-            else -> "오늘 하루 배운 것을 기록해보세요! 📝"
+            Emotion.ACHIEVEMENT -> "어제의 성취감을 이어가볼까요? 🔥"
+            Emotion.SATISFACTION -> "꾸준히 잘하고 있어요! 오늘도 파이팅 💪"
+            Emotion.NORMAL -> "작은 기록이 모여 큰 성장이 됩니다 ✨"
+            Emotion.HARD -> "어려운 건 성장하고 있다는 증거예요! 응원해요 💙"
+            Emotion.FRUSTRATION -> "괜찮아요, 한 줄이라도 적어보는 게 중요해요 🤗"
+            null -> "오늘 하루 배운 것을 기록해보세요! 📝"
         }
     }
 
