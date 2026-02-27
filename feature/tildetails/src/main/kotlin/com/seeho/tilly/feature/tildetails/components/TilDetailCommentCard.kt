@@ -26,11 +26,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.seeho.tilly.core.designsystem.R
-import com.seeho.tilly.core.designsystem.component.EmotionLabelBadge
 import com.seeho.tilly.core.designsystem.component.EmotionScoreIndicator
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.core.model.Difficulty
-import com.seeho.tilly.core.model.Emotion
 import com.seeho.tilly.core.model.Til
 
 import com.seeho.tilly.core.designsystem.util.color
@@ -41,26 +39,20 @@ fun TilDetailCommentCard(
     til: Til,
     modifier: Modifier = Modifier,
 ) {
-    val feedback = til.feedback ?: "분석된 내용이 없습니다.\n수정모드에서 재분석을 통해\n틸리의 분석을 받아보세요!"
-    val emotionScore = til.emotionScore
-    val difficultyLevel = til.difficultyLevel
+    val feedback = til.feedback ?: "분석된 내용이 없습니다."
+    val emotionScore = til.emotionScore ?: 0
+    val difficultyLevel = til.difficultyLevel ?: Difficulty.NORMAL
     
-    // 분석 여부 판단
-    val hasAnalysis = emotionScore != null || til.emotion != null
-
-    // 감정별 틸리 아이콘
-    val emotion = til.emotion
-    val tillyIcon = when (emotion) {
-        Emotion.ACHIEVEMENT -> R.drawable.ic_tilly_accomplished
-        Emotion.SATISFACTION -> R.drawable.ic_tilly_satisfied
-        Emotion.NORMAL -> R.drawable.ic_tilly_normal
-        Emotion.HARD -> R.drawable.ic_tilly_challenged
-        Emotion.FRUSTRATION -> R.drawable.ic_tilly_frustrated
-        null -> R.drawable.ic_tilly_normal
+    //TODO 감정 점수 별 틸리 2개 더(좌절, 보통) 등록
+    val tillyIcon = when {
+        emotionScore >= 4 -> R.drawable.ic_tilly_satisfied
+        emotionScore >= 3 -> R.drawable.ic_tilly_accomplished
+        else -> R.drawable.ic_tilly_challenged
     }
 
-    val difficultyIcon = difficultyLevel?.iconRes
-    val difficultyColor = difficultyLevel?.color
+    val difficultyIcon = difficultyLevel.iconRes
+
+    val difficultyColor = difficultyLevel.color
 
 
     Surface(
@@ -80,135 +72,87 @@ fun TilDetailCommentCard(
             )
             
             Spacer(modifier = Modifier.height(4.dp))
-
-            if (!hasAnalysis) {
-                // 미분석
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_retrospective),
-                        contentDescription = null,
-                        modifier = Modifier.size(80.dp),
-                        contentScale = ContentScale.Fit
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.small)
+                    .border(
+                        width = 1.dp, 
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), 
+                        shape = MaterialTheme.shapes.small
                     )
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = feedback,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.4f
+                )
+            }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .background(color = MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.small)
-                            .border(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                                shape = MaterialTheme.shapes.small
-                            )
-                            .padding(12.dp)
-                    ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = tillyIcon),
+                    contentDescription = null,
+                    modifier = Modifier.size(100.dp),
+                    contentScale = ContentScale.Fit
+                )
+                
+                Spacer(modifier = Modifier.width(16.dp))
+                
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(
-                            text = feedback,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.4f
+                            text = "Emotion",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    }
-                }
-            } else {
-                // 분석 완료
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.small)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                            shape = MaterialTheme.shapes.small
-                        )
-                        .padding(12.dp)
-                ) {
-                    Text(
-                        text = feedback,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.4f
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = tillyIcon),
-                        contentDescription = null,
-                        modifier = Modifier.size(100.dp),
-                        contentScale = ContentScale.Fit
-                    )
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        if (emotionScore != null) {
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(
-                                    text = "감정",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    EmotionScoreIndicator(
-                                        score = emotionScore,
-                                        blockWidth = 20.dp,
-                                        blockHeight = 12.dp
-                                    )
-                                    til.emotion?.let { emo ->
-                                        EmotionLabelBadge(
-                                            label = emo.label,
-                                            color = emo.color,
-                                        )
-                                    }
-
-                                    Spacer(modifier = Modifier.weight(1f))
-
-                                    Text(
-                                        text = "${emotionScore}/5",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
+                        
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            EmotionScoreIndicator(
+                                score = emotionScore,
+                                blockWidth = 20.dp,
+                                blockHeight = 12.dp
+                            )
+                            
+                            Spacer(modifier = Modifier.weight(1f))
+                            
+                            Text(
+                                text = "${emotionScore}/5",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
-
-                        if (difficultyLevel != null && difficultyIcon != null && difficultyColor != null) {
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(
-                                    text = "난이도",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Image(
-                                        painter = painterResource(id = difficultyIcon),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(2.dp))
-                                    Text(
-                                        text = difficultyLevel.displayName,
-                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                        color = difficultyColor
-                                    )
-                                }
-                            }
+                    }
+                    
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = "Difficulty",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = difficultyIcon),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text(
+                                text = difficultyLevel.displayName,
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = difficultyColor
+                            )
                         }
                     }
                 }

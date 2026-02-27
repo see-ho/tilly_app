@@ -10,6 +10,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,6 +41,23 @@ fun TilSectionHeader(
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary
         )
+        //TODO List 보기, Calendar 보기
+//        Row {
+//            IconButton(onClick = { onViewChange(true) }) {
+//                Icon(
+//                    imageVector = Icons.Default.List,
+//                    contentDescription = "List View",
+//                    tint = if (isListView) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+//                )
+//            }
+//            IconButton(onClick = { onViewChange(false) }) {
+//                Icon(
+//                    imageVector = Icons.Default.DateRange,
+//                    contentDescription = "Calendar View",
+//                    tint = if (!isListView) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+//                )
+//            }
+//        }
     }
 }
 

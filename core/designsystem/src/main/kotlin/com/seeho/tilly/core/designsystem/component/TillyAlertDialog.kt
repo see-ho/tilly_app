@@ -6,7 +6,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.seeho.tilly.core.designsystem.theme.DialogShape
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
@@ -20,15 +19,7 @@ fun TillyAlertDialog(
     text: String,
     confirmText: String = "Confirm",
     dismissText: String = "Cancel",
-    confirmButtonColor: Color = Color.Unspecified,
 ) {
-    // 기본값: errorContainer
-    val resolvedConfirmColor = if (confirmButtonColor == Color.Unspecified) {
-        MaterialTheme.colorScheme.errorContainer
-    } else {
-        confirmButtonColor
-    }
-
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismissRequest,
@@ -51,7 +42,7 @@ fun TillyAlertDialog(
                 Text(
                     text = confirmText,
                     style = MaterialTheme.typography.labelLarge,
-                    color = resolvedConfirmColor
+                    color = MaterialTheme.colorScheme.errorContainer
                 )
             }
         },

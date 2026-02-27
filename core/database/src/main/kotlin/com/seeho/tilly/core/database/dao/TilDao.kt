@@ -56,16 +56,4 @@ interface TilDao {
      */
     @Query("DELETE FROM tils WHERE id = :id")
     suspend fun deleteTilById(id: Long)
-
-    /**
-     * 가장 최근 TIL 1개 조회 (Worker용 suspend)
-     */
-    @Query("SELECT * FROM tils ORDER BY createdAt DESC LIMIT 1")
-    suspend fun getLatestTil(): TilEntity?
-
-    /**
-     * 오늘 작성한 TIL 개수 조회 (Worker용 suspend)
-     */
-    @Query("SELECT COUNT(*) FROM tils WHERE createdAt >= :todayStartMillis")
-    suspend fun getTodayTilCount(todayStartMillis: Long): Int
 }

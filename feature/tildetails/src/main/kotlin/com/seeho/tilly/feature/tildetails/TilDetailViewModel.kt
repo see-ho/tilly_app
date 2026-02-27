@@ -55,6 +55,7 @@ class TilDetailViewModel @Inject constructor(
                 deleteTilUseCase(tilId)
                 _event.emit(TilDetailEvent.DeleteSuccess)
             } catch (e: Exception) {
+                // TODO 에러 처리
                 e.printStackTrace()
                 _event.emit(TilDetailEvent.DeleteFailed)
             }
