@@ -122,6 +122,8 @@ class StatisticsViewModel @Inject constructor(
 
     // 월간 회고 생성 (GPT 호출) — 월 1회 무료, 이후 코인 차감
     fun onGenerateRetrospective() {
+        // 중복 탭 방어: 이미 로딩 중이면 무시
+        if (_retrospectiveLoadingState.value.isLoading) return
         val state = _currentMonthState.value
         viewModelScope.launch {
             // 1. TIL 개수 검증을 먼저 수행 (코인 차감 방지)
@@ -137,7 +139,9 @@ class StatisticsViewModel @Inject constructor(
                 return@launch
             }
 
-            // 2. TIL 검증 통과 후 코인 차감
+            // 2. TIL 검증 통과 후 로딩 상태 선반영 + 코인 차감
+            _retrospectiveLoadingState.update { it.copy(isLoading = true, error = null) }
+
             val consumed = coinRepository.consumeRetrospective(state.month, state.year)
             if (!consumed) {
                 _retrospectiveLoadingState.update {
@@ -145,8 +149,6 @@ class StatisticsViewModel @Inject constructor(
                 }
                 return@launch
             }
-
-            _retrospectiveLoadingState.update { it.copy(isLoading = true, error = null) }
 
             generateRetrospectiveUseCase(state.month, state.year, currentTils)
                 .onSuccess {
