@@ -6,14 +6,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.seeho.tilly.core.designsystem.theme.JetBrainsMonoFontFamily
 
@@ -27,8 +24,6 @@ fun TitleTextField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
     val textStyle = MaterialTheme.typography.bodyLarge.copy(
         fontFamily = JetBrainsMonoFontFamily,
@@ -44,8 +39,6 @@ fun TitleTextField(
         textStyle = textStyle,
         singleLine = true,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
         modifier = modifier
             .fillMaxWidth()
             .height(52.dp)

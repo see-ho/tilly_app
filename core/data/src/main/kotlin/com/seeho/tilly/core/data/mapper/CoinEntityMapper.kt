@@ -10,6 +10,4 @@ fun CoinEntity.toModel(): UserCoin = UserCoin(
     dailyAttendanceClaimed = dailyAttendanceClaimed,
     dailyAdWatchCount = dailyAdWatchCount,
     streakCount = streakCount,
-    dailyAnalysisCount = dailyAnalysisCount,
-    lastRetrospectiveMonth = lastRetrospectiveMonth,
 )

@@ -44,13 +44,9 @@ import com.seeho.tilly.feature.tildetails.navigation.tilDetailScreen
 import com.seeho.tilly.feature.shop.navigation.navigateToShop
 import com.seeho.tilly.feature.editor.navigation.navigateToEditor
 import com.seeho.tilly.navigation.TopLevelDestination
-import com.seeho.tilly.ui.oss.OssLicensesScreen
-import androidx.navigation.compose.composable
-import kotlinx.serialization.Serializable
 
 @Composable
 fun TillyApp(
-    todayTilId: Long? = null,
     appState: TillyAppState = rememberTillyAppState(),
 ) {
     Scaffold(
@@ -73,14 +69,8 @@ fun TillyApp(
                     destinations = appState.topLevelDestinations,
                     onNavigateToDestination = appState::navigateToTopLevelDestination,
                     currentDestination = appState.currentDestination,
-                    hasTodayTil = todayTilId != null,
                     onFabClick = {
-                        // 오늘 TIL이 있으면 상세 화면, 없으면 에디터로 이동
-                        if (todayTilId != null) {
-                            appState.navController.navigate(TilDetail(todayTilId))
-                        } else {
-                            appState.navController.navigateToEditor()
-                        }
+                        appState.navController.navigateToEditor()
                     },
                 )
             }
@@ -125,16 +115,7 @@ fun TillyApp(
                     onCoinHistoryClick = {
                         appState.navController.navigateToCoinHistory()
                     },
-                    onOpenSourceClick = {
-                        appState.navController.navigate(OssLicensesRoute)
-                    },
                 )
-                // 오픈소스 라이선스 화면
-                composable<OssLicensesRoute> {
-                    OssLicensesScreen(
-                        onBackClick = { appState.navController.popBackStack() },
-                    )
-                }
                 coinHistoryScreen(
                     onBackClick = { appState.navController.popBackStack() },
                 )
@@ -161,7 +142,6 @@ private fun AppBottomBarWithFab(
     destinations: List<TopLevelDestination>,
     onNavigateToDestination: (TopLevelDestination) -> Unit,
     currentDestination: NavDestination?,
-    hasTodayTil: Boolean = false,
     onFabClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -203,7 +183,6 @@ private fun AppBottomBarWithFab(
         // 중앙 FAB
         TillyFab(
             onClick = onFabClick,
-            hasTodayTil = hasTodayTil,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .offset(y = (-24).dp),
@@ -222,7 +201,3 @@ private fun NavDestination?.isTopLevelDestinationInHierarchy(
         TopLevelDestination.MY -> it.hasRoute<MyPageRoute>()
     }
 } ?: false
-
-/** 오픈소스 라이선스 화면 네비게이션 라우트 */
-@Serializable
-data object OssLicensesRoute

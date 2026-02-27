@@ -2,7 +2,6 @@ package com.seeho.tilly.feature.statistics.component.retrospective
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,13 +22,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
@@ -41,10 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.seeho.tilly.core.designsystem.R
-import com.seeho.tilly.core.designsystem.component.TillyAlertDialog
 import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
 import com.seeho.tilly.core.designsystem.theme.JetBrainsMonoFontFamily
-import com.seeho.tilly.core.designsystem.theme.TillyShapes
 import com.seeho.tilly.core.designsystem.util.iconRes
 import com.seeho.tilly.core.model.MonthlyRetrospective
 import com.seeho.tilly.feature.statistics.DifficultyDistributionItem
@@ -61,16 +53,8 @@ fun MonthlyRetrospectiveSection(
     error: String?,
     onGenerateClick: () -> Unit,
     modifier: Modifier = Modifier,
-    minTilCount: Int = 5, // 회고 생성 최소 TIL 개수
 ) {
-    val canGenerate = tilCount >= minTilCount
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(TillyShapes.large)
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(20.dp),
-    ) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -114,32 +98,15 @@ fun MonthlyRetrospectiveSection(
                     difficultyDistribution = difficultyDistribution,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                // 다시 생성 버튼 + 확인 다이얼로그
-                var showRegenerateDialog by remember { mutableStateOf(false) }
-
-                if (showRegenerateDialog) {
-                    TillyAlertDialog(
-                        onDismissRequest = { showRegenerateDialog = false },
-                        onConfirm = {
-                            showRegenerateDialog = false
-                            onGenerateClick()
-                        },
-                        title = "회고 다시 생성",
-                        text = "회고를 다시 생성하면 50코인이 소모돼요.\n기존 회고는 새로운 회고로 대체됩니다.",
-                        confirmText = "생성하기",
-                        dismissText = "취소",
-                        confirmButtonColor = MaterialTheme.colorScheme.primary,
-                    )
-                }
-
+                // 다시 생성 버튼
                 Button(
-                    onClick = { showRegenerateDialog = true },
+                    onClick = onGenerateClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(44.dp),
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
                 ) {
@@ -155,23 +122,10 @@ fun MonthlyRetrospectiveSection(
                             fontWeight = FontWeight.Medium,
                         ),
                     )
-                    Spacer(modifier = Modifier.size(4.dp))
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_coin),
-                        contentDescription = "코인",
-                        modifier = Modifier.size(16.dp),
-                    )
-                    Spacer(modifier = Modifier.size(2.dp))
-                    Text(
-                        text = "50",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.Medium,
-                        ),
-                    )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }
-            // 회고 없음 → 생성 버튼 (최소 TIL 수 체크)
+            // 회고 없음 -> 생성 버튼
             else -> {
                 // 에러 메시지
                 if (error != null) {
@@ -182,18 +136,8 @@ fun MonthlyRetrospectiveSection(
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
                 }
-                // 최소 TIL 수 미달 안내
-                if (!canGenerate) {
-                    Text(
-                        text = "TIL ${minTilCount}개 이상 작성하면 회고를 생성할 수 있어요 (현재 ${tilCount}개)",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
-                }
                 Button(
                     onClick = onGenerateClick,
-                    enabled = canGenerate,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -467,6 +411,11 @@ private fun TillyCommentCard(
     borderColor: Color,
     modifier: Modifier = Modifier,
 ) {
+    val tillyIcon = when {
+        averageEmotionScore >= 4f -> R.drawable.ic_tilly_satisfied
+        averageEmotionScore >= 3f -> R.drawable.ic_tilly_accomplished
+        else -> R.drawable.ic_tilly_challenged
+    }
 
     // 평균 감정 점수에 따른 멘트
     val tillyMessage = when {
@@ -502,9 +451,10 @@ private fun TillyCommentCard(
                     verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    // 회고 전용 틸리 이미지
+                    // 틸리 이미지
+                    // TODO 회고용 이모지로 교체
                     Image(
-                        painter = painterResource(id = R.drawable.ic_retrospective),
+                        painter = painterResource(id = tillyIcon),
                         contentDescription = null,
                         modifier = Modifier.size(56.dp),
                         contentScale = ContentScale.Fit,

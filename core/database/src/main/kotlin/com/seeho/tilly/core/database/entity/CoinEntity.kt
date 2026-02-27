@@ -16,6 +16,4 @@ data class CoinEntity(
     val dailyAttendanceClaimed: Boolean = false,     // 오늘 출석 보상 수령 여부
     val dailyAdWatchCount: Int = 0,                  // 오늘 광고 시청 횟수
     val streakCount: Int = 0,                        // 연속 작성 일수
-    val dailyAnalysisCount: Int = 0,                 // 오늘 AI 분석 사용 횟수
-    val lastRetrospectiveMonth: String? = null,      // 마지막 무료 회고 생성 월 ("yyyy-MM")
 )

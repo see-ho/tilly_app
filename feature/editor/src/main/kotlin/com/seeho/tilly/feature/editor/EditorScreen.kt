@@ -1,8 +1,6 @@
 package com.seeho.tilly.feature.editor
 
 import android.content.res.Configuration
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,48 +10,41 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.seeho.tilly.core.designsystem.component.CoinRewardDialog
 import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
-import com.seeho.tilly.core.designsystem.component.TillySnackbarHost
 import com.seeho.tilly.core.designsystem.component.TillyTopAppBar
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 import com.seeho.tilly.feature.editor.component.CodeLineNumberTextField
 import com.seeho.tilly.feature.editor.component.EditorSection
 import com.seeho.tilly.feature.editor.component.TitleTextField
-import com.seeho.tilly.core.designsystem.component.TillyAlertDialog
-import com.seeho.tilly.core.designsystem.R as designR
 
 @Composable
 fun EditorScreen(
@@ -65,42 +56,6 @@ fun EditorScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coinRewardEvent by viewModel.coinRewardEvent.collectAsStateWithLifecycle()
 
-    // 작성 중인 내용이 있는지 판별
-    val hasContent = uiState.title.isNotBlank() || uiState.todayLearning.isNotBlank()
-            || uiState.difficulties.isNotBlank() || uiState.tomorrowPlan.isNotBlank()
-
-    // 나가기 확인 다이얼로그 상태
-    var showExitDialog by remember { mutableStateOf(false) }
-
-    // 뒤로가기 가드: 내용이 있으면 다이얼로그, 없으면 바로 나감
-    val guardedBack: () -> Unit = {
-        if (hasContent) {
-            showExitDialog = true
-        } else {
-            onBackClick()
-        }
-    }
-
-    // 시스템 뒤로가기 버튼도 동일하게 처리
-    BackHandler(enabled = hasContent) {
-        showExitDialog = true
-    }
-
-    // 나가기 확인 다이얼로그
-    if (showExitDialog) {
-        TillyAlertDialog(
-            onDismissRequest = { showExitDialog = false },
-            onConfirm = {
-                showExitDialog = false
-                onBackClick()
-            },
-            title = "작성 중인 내용이 있어요",
-            text = "지금 나가면 작성 중인 내용이 사라져요.\n정말 나가시겠어요?",
-            confirmText = "나가기",
-            dismissText = "계속 작성",
-        )
-    }
-
     // 이벤트 수신 → 저장 성공 시 상세 화면 이동, 실패 시 스낵바 표시
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
@@ -108,12 +63,6 @@ fun EditorScreen(
                 is EditorEvent.SaveSuccess -> onShowDetail(event.tilId)
                 is EditorEvent.SaveFailed -> {
                     snackbarHostState.showSnackbar("저장에 실패했습니다. 다시 시도해주세요.")
-                }
-                is EditorEvent.AnalysisLimitReached -> {
-                    snackbarHostState.showSnackbar("오늘 무료 분석 횟수를 모두 사용했어요. 코인이 부족합니다.")
-                }
-                is EditorEvent.ReanalysisSuccess -> {
-                    snackbarHostState.showSnackbar("✨ 재분석 완료! 저장하면 결과가 반영돼요")
                 }
             }
         }
@@ -145,11 +94,8 @@ fun EditorScreen(
             isEditMode = uiState.isEditMode,
             isSaving = uiState.isSaving,
             isAnalyzing = uiState.isAnalyzing,
-            remainingFreeAnalysis = uiState.remainingFreeAnalysis,
-            coinBalance = uiState.coinBalance,
-            onBackClick = guardedBack,
+            onBackClick = onBackClick,
             onSaveClick = viewModel::onSave,
-            onReanalyzeClick = viewModel::onReanalyzeClick,
             snackbarHostState = snackbarHostState,
         )
 
@@ -159,32 +105,6 @@ fun EditorScreen(
             rewardResult = coinRewardEvent,
             onDismiss = viewModel::consumeCoinRewardEvent,
         )
-
-        // 유료 분석 확인 다이얼로그
-        if (uiState.showPaidAnalysisDialog) {
-            TillyAlertDialog(
-                onDismissRequest = viewModel::dismissPaidAnalysisDialog,
-                onConfirm = viewModel::confirmPaidAnalysis,
-                title = "AI 재분석",
-                text = "무료 분석 횟수를 모두 사용했어요.\n30코인으로 재분석할까요?\n(보유: ${uiState.coinBalance}코인)",
-                confirmText = "분석하기",
-                dismissText = "취소",
-                confirmButtonColor = MaterialTheme.colorScheme.primary,
-            )
-        }
-
-        // 오프라인 저장 경고 다이얼로그
-        if (uiState.showOfflineSaveDialog) {
-            TillyAlertDialog(
-                onDismissRequest = viewModel::dismissOfflineSaveDialog,
-                onConfirm = viewModel::confirmOfflineSave,
-                title = "네트워크 연결 없음",
-                text = "네트워크가 연결되지 않아 AI 분석 없이 저장됩니다.\n저장 후 재분석으로 AI 피드백을 받을 수 있어요.",
-                confirmText = "저장하기",
-                dismissText = "취소",
-                confirmButtonColor = MaterialTheme.colorScheme.primary,
-            )
-        }
     }
 }
 
@@ -202,25 +122,22 @@ fun EditorContent(
     isEditMode: Boolean,
     isSaving: Boolean,
     isAnalyzing: Boolean,
-    remainingFreeAnalysis: Int = 3,
-    coinBalance: Int = 0,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
-    onReanalyzeClick: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     modifier: Modifier = Modifier,
 ) {
-    // 키보드 제어 및 포커스 관리
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
-    val titleFocus = remember { FocusRequester() }
-    val learningFocus = remember { FocusRequester() }
-    val difficultyFocus = remember { FocusRequester() }
-    val tomorrowFocus = remember { FocusRequester() }
     Scaffold(
         modifier = modifier,
         snackbarHost = {
-            TillySnackbarHost(hostState = snackbarHostState)
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                //TODO 스타일 수정
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = Color.Black,
+                    contentColor = Color.White,
+                )
+            }
         },
         topBar = {
             TillyTopAppBar(
@@ -235,68 +152,26 @@ fun EditorContent(
                     }
                 },
                 actions = {
-                    // 수정 모드: 재분석 아이콘 버튼
-                    if (isEditMode) {
-                        Box {
-                            IconButton(
-                                onClick = onReanalyzeClick,
-                                enabled = !isAnalyzing && !isSaving,
-                            ) {
-                                if (isAnalyzing) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(20.dp),
-                                        strokeWidth = 2.dp,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                } else {
-                                    Icon(
-                                        imageVector = Icons.Default.Refresh,
-                                        contentDescription = "재분석",
-                                        tint = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                }
-                            }
-                            // 남은 횟수 뱃지
-                            if (!isAnalyzing) {
-                                if (remainingFreeAnalysis > 0) {
-                                    Text(
-                                        text = "$remainingFreeAnalysis",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .padding(top = 6.dp, end = 6.dp),
-                                    )
-                                } else {
-                                    Image(
-                                        painter = painterResource(id = designR.drawable.ic_coin),
-                                        contentDescription = "코인 필요",
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .padding(top = 6.dp, end = 6.dp)
-                                            .size(14.dp),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    // 저장 아이콘 버튼 (키보드 내림 후 저장)
-                    IconButton(
-                        onClick = {
-                            keyboardController?.hide()
-                            focusManager.clearFocus()
-                            onSaveClick()
-                        },
+                    // 저장 버튼
+                    Button(
+                        onClick = onSaveClick,
                         enabled = isSaveEnabled,
+                        shape = MaterialTheme.shapes.medium,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                        modifier = Modifier.height(40.dp),
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Save,
-                            contentDescription = "저장",
-                            tint = if (isSaveEnabled) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                            },
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "저장",
+                            style = MaterialTheme.typography.titleMedium,
                         )
                     }
                 },
@@ -319,10 +194,6 @@ fun EditorContent(
                     value = title,
                     onValueChange = onTitleChange,
                     placeholder = "오늘의 학습 제목을 입력하세요...",
-                    modifier = Modifier.focusRequester(titleFocus),
-                    keyboardActions = KeyboardActions(
-                        onNext = { learningFocus.requestFocus() }
-                    ),
                 )
             }
 
@@ -336,7 +207,6 @@ fun EditorContent(
                     placeholder = "오늘 배운 내용을 작성하세요...",
                     minLines = 10,
                     maxHeight = 280.dp,
-                    focusRequester = learningFocus,
                 )
             }
 
@@ -350,7 +220,6 @@ fun EditorContent(
                     placeholder = "어려웠던 점이나 도전했던 내용을 작성하세요...",
                     minLines = 5,
                     maxHeight = 146.dp,
-                    focusRequester = difficultyFocus,
                 )
             }
 
@@ -364,7 +233,6 @@ fun EditorContent(
                     placeholder = "내일 공부할 내용이나 계획을 작성하세요...",
                     minLines = 5,
                     maxHeight = 146.dp,
-                    focusRequester = tomorrowFocus,
                 )
             }
 
