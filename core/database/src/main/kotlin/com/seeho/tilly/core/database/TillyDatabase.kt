@@ -33,7 +33,7 @@ import com.seeho.tilly.core.database.entity.TilEntity
         EquippedItemEntity::class,
         CoinTransactionEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(TagListConverter::class)

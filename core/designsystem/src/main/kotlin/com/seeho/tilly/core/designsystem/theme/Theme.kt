@@ -176,7 +176,7 @@ internal val TillyGreenDarkScheme = darkColorScheme(
     tertiaryContainer = Color(0xFF7B1FA2),
     onTertiaryContainer = Color(0xFFF3E5F5),
 
-    error = Color(0xFFFFB4AB),
+    error = Color(0xFFFF6B6B),
     onError = Color(0xFF690005),
     errorContainer = Color(0xFF93000A),
     onErrorContainer = Color(0xFFFFDAD6),
@@ -212,7 +212,7 @@ internal val DraculaDarkScheme = darkColorScheme(
 
     error = DraculaRed,
     onError = DraculaBackground,
-    errorContainer = DraculaOrange,
+    errorContainer = DraculaRedDark,
     onErrorContainer = DraculaForeground,
 
     background = DraculaBackground,
@@ -246,7 +246,7 @@ internal val MonokaiDarkScheme = darkColorScheme(
 
     error = MonokaiPink,
     onError = MonokaiBackground,
-    errorContainer = MonokaiOrange,
+    errorContainer = MonokaiPinkDark,
     onErrorContainer = MonokaiForeground,
 
     background = MonokaiBackground,
@@ -280,7 +280,7 @@ internal val OneDarkDarkScheme = darkColorScheme(
 
     error = OneDarkRed,
     onError = OneDarkBackground,
-    errorContainer = OneDarkOrange,
+    errorContainer = OneDarkRedDark,
     onErrorContainer = OneDarkForeground,
 
     background = OneDarkBackground,
@@ -314,7 +314,7 @@ internal val NordDarkScheme = darkColorScheme(
 
     error = NordAurora0,
     onError = NordPolarNight0,
-    errorContainer = NordAurora1,
+    errorContainer = NordAurora0Dark,
     onErrorContainer = NordSnowStorm2,
 
     background = NordPolarNight0,
@@ -348,7 +348,7 @@ internal val GruvboxDarkScheme = darkColorScheme(
 
     error = GruvboxRed,
     onError = GruvboxBackground,
-    errorContainer = GruvboxOrange,
+    errorContainer = GruvboxRedDark,
     onErrorContainer = GruvboxForeground,
 
     background = GruvboxBackground,

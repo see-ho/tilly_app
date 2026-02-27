@@ -10,9 +10,12 @@ import com.seeho.tilly.core.model.ItemCategory
 import com.seeho.tilly.core.model.ShopItem
 import com.seeho.tilly.core.model.UserCoin
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -55,9 +58,9 @@ class ShopViewModel @Inject constructor(
         .map { category -> allItems.filter { it.category == category } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // 구매 결과 이벤트
-    private val _purchaseResult = MutableStateFlow<PurchaseResult?>(null)
-    val purchaseResult: StateFlow<PurchaseResult?> = _purchaseResult.asStateFlow()
+    // 구매 결과 이벤트 (일회성 이벤트이므로 SharedFlow 사용)
+    private val _purchaseEvent = MutableSharedFlow<PurchaseResult>()
+    val purchaseEvent: SharedFlow<PurchaseResult> = _purchaseEvent.asSharedFlow()
 
     /** 카테고리 탭 변경 */
     fun selectCategory(category: ItemCategory) {
@@ -68,11 +71,10 @@ class ShopViewModel @Inject constructor(
     fun purchaseItem(item: ShopItem) {
         viewModelScope.launch {
             val success = purchaseItemUseCase(item.id, item.price)
-            _purchaseResult.value = if (success) {
-                PurchaseResult.Success(item.name)
-            } else {
-                PurchaseResult.InsufficientFunds
-            }
+            _purchaseEvent.emit(
+                if (success) PurchaseResult.Success(item.name)
+                else PurchaseResult.InsufficientFunds
+            )
         }
     }
 
@@ -81,10 +83,5 @@ class ShopViewModel @Inject constructor(
         viewModelScope.launch {
             equipItemUseCase(item.category, item.id)
         }
-    }
-
-    /** 구매 결과 이벤트 소비 */
-    fun consumePurchaseResult() {
-        _purchaseResult.value = null
     }
 }

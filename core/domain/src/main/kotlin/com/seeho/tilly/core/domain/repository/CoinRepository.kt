@@ -31,4 +31,22 @@ interface CoinRepository {
 
     /** 코인 거래 내역 조회 (최신순) */
     fun getCoinTransactions(): Flow<List<CoinTransaction>>
+
+    /** AI 분석 가능 여부 (무료 횟수 남았거나 코인 충분) */
+    suspend fun canAnalyze(): Boolean
+
+    /** AI 분석 1회 소비 (무료면 카운트 증가, 유료면 코인 차감). 불가 시 false */
+    suspend fun consumeAnalysis(): Boolean
+
+    /** 남은 무료 분석 횟수 (0이면 유료) */
+    suspend fun getRemainingFreeAnalysis(): Int
+
+    /** 현재 코인 잔액 */
+    suspend fun getBalance(): Int
+
+    /** 월간 회고 생성 가능 여부 (이번 달 무료 가능하거나 코인 충분) */
+    suspend fun canGenerateRetrospective(month: Int, year: Int): Boolean
+
+    /** 회고 생성권 소비 (무료면 월 기록, 유료면 코인 차감). 불가 시 false */
+    suspend fun consumeRetrospective(month: Int, year: Int): Boolean
 }

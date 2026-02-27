@@ -1,6 +1,11 @@
 package com.seeho.tilly.feature.mypage
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,10 +16,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.seeho.tilly.core.designsystem.component.TillyLoadingIndicator
@@ -36,10 +46,43 @@ fun MyPageScreen(
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    // 알림 토글 ON 시 일시 저장할 설정값
+    var pendingNotificationSettings by remember { mutableStateOf<NotificationSettings?>(null) }
+
+    // POST_NOTIFICATIONS 권한 요청 런처 (Android 13+)
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { isGranted ->
+        if (isGranted) {
+            // 권한 승인 → 대기 중이던 설정 적용
+            pendingNotificationSettings?.let { settings ->
+                viewModel.updateNotificationSettings(settings)
+            }
+        }
+        pendingNotificationSettings = null
+    }
 
     MyPageContent(
         uiState = uiState,
-        onNotificationSettingsChange = viewModel::updateNotificationSettings,
+        onNotificationSettingsChange = { newSettings ->
+            // Android 13+ 알림 권한 확인
+            val needsPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                (newSettings.reminderEnabled || newSettings.planEnabled) &&
+                ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.POST_NOTIFICATIONS,
+                ) != PackageManager.PERMISSION_GRANTED
+
+            if (needsPermission) {
+                // 권한 없으면 요청 후 대기
+                pendingNotificationSettings = newSettings
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                // 권한 있으면 바로 적용
+                viewModel.updateNotificationSettings(newSettings)
+            }
+        },
         onOpenSourceClick = onOpenSourceClick,
         onCoinHistoryClick = onCoinHistoryClick,
         modifier = modifier,
@@ -70,13 +113,13 @@ fun MyPageContent(
             .padding(horizontal = 16.dp),
     ) {
         // 1. 프로필 섹션
-        item {
-            ProfileSection(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-            )
-        }
+        // item {
+        //     ProfileSection(
+        //         modifier = Modifier
+        //             .fillMaxWidth()
+        //             .padding(top = 8.dp),
+        //     )
+        // }
 
         // 2. Weekly Check
         item {

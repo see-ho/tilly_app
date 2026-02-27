@@ -6,6 +6,7 @@ import com.seeho.tilly.core.common.util.DateUtils
 import com.seeho.tilly.core.domain.GenerateRetrospectiveUseCase
 import com.seeho.tilly.core.domain.GetAllTilsUseCase
 import com.seeho.tilly.core.domain.repository.AiAnalysisRepository
+import com.seeho.tilly.core.domain.repository.CoinRepository
 import com.seeho.tilly.core.model.Difficulty
 import com.seeho.tilly.core.model.Emotion
 import com.seeho.tilly.core.model.Til
@@ -31,7 +32,13 @@ class StatisticsViewModel @Inject constructor(
     private val getAllTilsUseCase: GetAllTilsUseCase,
     private val generateRetrospectiveUseCase: GenerateRetrospectiveUseCase,
     private val aiAnalysisRepository: AiAnalysisRepository,
+    private val coinRepository: CoinRepository,
 ) : ViewModel() {
+
+    companion object {
+        /** 월간 회고 생성에 필요한 최소 TIL 수 */
+        const val MIN_TILS_FOR_RETROSPECTIVE = 5
+    }
 
     private val _currentMonthState = MutableStateFlow(CurrentMonthState())
 
@@ -113,21 +120,32 @@ class StatisticsViewModel @Inject constructor(
         }
     }
 
-    // 월간 회고 생성 (GPT 호출)
+    // 월간 회고 생성 (GPT 호출) — 월 1회 무료, 이후 코인 차감
     fun onGenerateRetrospective() {
+        // 중복 탭 방어: 이미 로딩 중이면 무시
+        if (_retrospectiveLoadingState.value.isLoading) return
         val state = _currentMonthState.value
         viewModelScope.launch {
-            _retrospectiveLoadingState.update { it.copy(isLoading = true, error = null) }
-
-            // 현재 월의 TIL 데이터를 가져오기
+            // 1. TIL 개수 검증을 먼저 수행 (코인 차감 방지)
             val currentTils = getAllTilsUseCase().first().filter { til ->
                 val date = DateUtils.timestampToLocalDate(til.createdAt)
                 date.monthValue == state.month && date.year == state.year
             }
 
-            if (currentTils.isEmpty()) {
+            if (currentTils.size < MIN_TILS_FOR_RETROSPECTIVE) {
                 _retrospectiveLoadingState.update {
-                    it.copy(isLoading = false, error = "이번 달에 작성한 TIL이 없어요")
+                    it.copy(isLoading = false, error = "TIL ${MIN_TILS_FOR_RETROSPECTIVE}개 이상 작성해야 회고를 생성할 수 있어요 (현재 ${currentTils.size}개)")
+                }
+                return@launch
+            }
+
+            // 2. TIL 검증 통과 후 로딩 상태 선반영 + 코인 차감
+            _retrospectiveLoadingState.update { it.copy(isLoading = true, error = null) }
+
+            val consumed = coinRepository.consumeRetrospective(state.month, state.year)
+            if (!consumed) {
+                _retrospectiveLoadingState.update {
+                    it.copy(isLoading = false, error = "코인이 부족해요. 회고 재생성에는 50코인이 필요해요")
                 }
                 return@launch
             }
