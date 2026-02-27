@@ -39,22 +39,16 @@ fun ShopScreen(
     val purchasedItemIds by viewModel.purchasedItemIds.collectAsStateWithLifecycle()
     val equippedItems by viewModel.equippedItems.collectAsStateWithLifecycle()
     val filteredItems by viewModel.filteredItems.collectAsStateWithLifecycle()
-    val purchaseResult by viewModel.purchaseResult.collectAsStateWithLifecycle()
-
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // 구매 결과 → 스낵바 표시
-    LaunchedEffect(purchaseResult) {
-        when (val result = purchaseResult) {
-            is PurchaseResult.Success -> {
-                snackbarHostState.showSnackbar("'${result.itemName}' 구매 완료! 🎉")
-                viewModel.consumePurchaseResult()
+    // 구매 결과 → 스낵바 표시 (SharedFlow 수집)
+    LaunchedEffect(Unit) {
+        viewModel.purchaseEvent.collect { result ->
+            val message = when (result) {
+                is PurchaseResult.Success -> "'${result.itemName}' 구매 완료! 🎉"
+                is PurchaseResult.InsufficientFunds -> "코인이 부족해요 😢"
             }
-            is PurchaseResult.InsufficientFunds -> {
-                snackbarHostState.showSnackbar("코인이 부족해요 😢")
-                viewModel.consumePurchaseResult()
-            }
-            null -> { /* 이벤트 없음 */ }
+            snackbarHostState.showSnackbar(message)
         }
     }
 
