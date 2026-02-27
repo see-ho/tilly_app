@@ -2,6 +2,7 @@ package com.seeho.tilly
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seeho.tilly.core.common.util.DateUtils
 import com.seeho.tilly.core.domain.GetAllTilsUseCase
 import com.seeho.tilly.core.domain.GetShopItemsUseCase
 import com.seeho.tilly.core.designsystem.theme.AppTheme
@@ -12,9 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 import javax.inject.Inject
 
 /**
@@ -45,9 +44,7 @@ class MainViewModel @Inject constructor(
         .map { tils ->
             val today = LocalDate.now()
             tils.firstOrNull { til ->
-                Instant.ofEpochMilli(til.createdAt)
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate() == today
+                DateUtils.timestampToLocalDate(til.createdAt) == today
             }?.id
         }
         .stateIn(
