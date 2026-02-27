@@ -187,6 +187,93 @@ class CoinRepositoryImpl @Inject constructor(
 
 
 
+    // ── AI 분석 제한 ──
+
+    override suspend fun canAnalyze(): Boolean = coinMutex.withLock {
+        ensureCoinExists()
+        resetDailyFlagsIfNeeded()
+        val count = coinDao.getAnalysisCountSync() ?: 0
+        // 무료 횟수 남았거나 코인이 충분하면 true
+        count < RewardPolicy.FREE_DAILY_ANALYSIS ||
+                (coinDao.getBalanceSync() ?: 0) >= RewardPolicy.ANALYSIS_COIN_COST
+    }
+
+    override suspend fun consumeAnalysis(): Boolean = coinMutex.withLock {
+        ensureCoinExists()
+        resetDailyFlagsIfNeeded()
+        val count = coinDao.getAnalysisCountSync() ?: 0
+
+        if (count < RewardPolicy.FREE_DAILY_ANALYSIS) {
+            // 무료 횟수 내: 카운트만 증가
+            coinDao.incrementAnalysisCount()
+            true
+        } else {
+            // 유료: 코인 차감
+            val balance = coinDao.getBalanceSync() ?: 0
+            if (balance < RewardPolicy.ANALYSIS_COIN_COST) return@withLock false
+            database.withDatabaseTransaction {
+                coinDao.deductCoins(RewardPolicy.ANALYSIS_COIN_COST)
+                coinDao.incrementAnalysisCount()
+                recordTransaction(
+                    amount = -RewardPolicy.ANALYSIS_COIN_COST,
+                    type = CoinTransactionType.PURCHASE,
+                    description = "AI 분석 추가 사용",
+                )
+            }
+            true
+        }
+    }
+
+    override suspend fun getRemainingFreeAnalysis(): Int = coinMutex.withLock {
+        ensureCoinExists()
+        resetDailyFlagsIfNeeded()
+        val count = coinDao.getAnalysisCountSync() ?: 0
+        (RewardPolicy.FREE_DAILY_ANALYSIS - count).coerceAtLeast(0)
+    }
+
+    override suspend fun getBalance(): Int = coinMutex.withLock {
+        ensureCoinExists()
+        coinDao.getBalanceSync() ?: 0
+    }
+
+    // ── 월간 회고 제한 ──
+
+    override suspend fun canGenerateRetrospective(month: Int, year: Int): Boolean =
+        coinMutex.withLock {
+            ensureCoinExists()
+            val currentMonth = String.format("%04d-%02d", year, month)
+            val lastMonth = coinDao.getLastRetrospectiveMonthSync()
+            // 이번 달 아직 안 썼거나, 코인이 충분하면 true
+            lastMonth != currentMonth ||
+                    (coinDao.getBalanceSync() ?: 0) >= RewardPolicy.RETROSPECTIVE_COIN_COST
+        }
+
+    override suspend fun consumeRetrospective(month: Int, year: Int): Boolean =
+        coinMutex.withLock {
+            ensureCoinExists()
+            val currentMonth = String.format("%04d-%02d", year, month)
+            val lastMonth = coinDao.getLastRetrospectiveMonthSync()
+
+            if (lastMonth != currentMonth) {
+                // 이번 달 첫 무료 회고
+                coinDao.setLastRetrospectiveMonth(currentMonth)
+                true
+            } else {
+                // 재생성: 코인 차감
+                val balance = coinDao.getBalanceSync() ?: 0
+                if (balance < RewardPolicy.RETROSPECTIVE_COIN_COST) return@withLock false
+                database.withDatabaseTransaction {
+                    coinDao.deductCoins(RewardPolicy.RETROSPECTIVE_COIN_COST)
+                    recordTransaction(
+                        amount = -RewardPolicy.RETROSPECTIVE_COIN_COST,
+                        type = CoinTransactionType.PURCHASE,
+                        description = "월간 회고 재생성",
+                    )
+                }
+                true
+            }
+        }
+
     /**
      * 현재 잔액을 조회하여 balanceAfter를 채움
      */

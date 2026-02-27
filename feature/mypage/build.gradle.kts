@@ -9,4 +9,5 @@ android {
 dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:datastore"))
+    implementation(project(":core:common"))
 }

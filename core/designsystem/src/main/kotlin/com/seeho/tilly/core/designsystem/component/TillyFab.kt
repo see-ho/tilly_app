@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -24,12 +25,31 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.seeho.tilly.core.designsystem.theme.TillyTheme
 
+/**
+ * 중앙 FAB — 오늘의 TIL 상태에 따라 디자인 전환
+ * - TIL 없음: + 아이콘 + primary(초록) 색상
+ * - TIL 있음: ✓ 아이콘 + 회색
+ */
 @Composable
 fun TillyFab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    hasTodayTil: Boolean = false,
 ) {
-    val glowColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+    // 상태에 따라 색상과 아이콘 분기
+    val fabColor = if (hasTodayTil) {
+        MaterialTheme.colorScheme.surfaceVariant
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+    val fabOnColor = if (hasTodayTil) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    } else {
+        MaterialTheme.colorScheme.onPrimary
+    }
+    val fabIcon = if (hasTodayTil) Icons.Default.Check else Icons.Default.Add
+    val fabDescription = if (hasTodayTil) "오늘의 TIL 보기" else "TIL 작성"
+    val glowColor = fabColor.copy(alpha = 0.6f)
     
     Box(
         modifier = modifier,
@@ -37,7 +57,7 @@ fun TillyFab(
     ) {
         Spacer(
             modifier = Modifier
-                .size(56.dp)
+                .size(68.dp)
                 .drawBehind {
                     drawCircle(
                         brush = Brush.radialGradient(
@@ -53,16 +73,16 @@ fun TillyFab(
         
         FloatingActionButton(
             onClick = onClick,
-            modifier = Modifier.size(48.dp),
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.size(56.dp),
+            containerColor = fabColor,
+            contentColor = fabOnColor,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add",
-                modifier = Modifier.size(20.dp),
+                imageVector = fabIcon,
+                contentDescription = fabDescription,
+                modifier = Modifier.size(24.dp),
             )
         }
     }
@@ -74,7 +94,19 @@ private fun TillyFabPreview() {
     TillyTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             Box(modifier = Modifier.padding(16.dp)) {
-                TillyFab(onClick = {})
+                TillyFab(onClick = {}, hasTodayTil = false)
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun TillyFabCompletedPreview() {
+    TillyTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Box(modifier = Modifier.padding(16.dp)) {
+                TillyFab(onClick = {}, hasTodayTil = true)
             }
         }
     }

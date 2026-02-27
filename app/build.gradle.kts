@@ -1,10 +1,11 @@
-plugins {
+ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.aboutlibraries)
 }
 
 android {
@@ -47,13 +48,14 @@ dependencies {
     implementation(project(":feature:tildetails"))
     implementation(project(":feature:shop"))
     implementation(project(":feature:mypage"))
-    implementation(project(":feature:report"))
     implementation(project(":feature:statistics"))
     implementation(project(":feature:editor"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:database"))
     implementation(project(":core:data"))
     implementation(project(":core:domain"))
+    implementation(project(":core:common"))
+    implementation(project(":core:datastore"))
     
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -68,10 +70,20 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
 
+    implementation(libs.aboutlibraries.core)
+    implementation(libs.aboutlibraries.compose.m3)
+
     implementation(libs.hilt.android)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
+
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.work.compiler)
+
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

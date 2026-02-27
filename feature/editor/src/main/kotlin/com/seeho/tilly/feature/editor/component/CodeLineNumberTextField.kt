@@ -21,6 +21,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +44,7 @@ fun CodeLineNumberTextField(
     placeholder: String = "",
     minLines: Int = 5,
     maxHeight: Dp = 280.dp,
+    focusRequester: FocusRequester? = null,
 ) {
     // 실제 렌더링된 줄 수 (onTextLayout에서 업데이트)
     var actualLineCount by remember { mutableIntStateOf(minLines) }
@@ -148,7 +151,12 @@ fun CodeLineNumberTextField(
                 onValueChange = onValueChange,
                 textStyle = textStyle,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (focusRequester != null) Modifier.focusRequester(focusRequester)
+                        else Modifier
+                    ),
                 // onTextLayout으로 실제 렌더링된 줄 수 감지
                 onTextLayout = { textLayoutResult ->
                     actualLineCount = textLayoutResult.lineCount
