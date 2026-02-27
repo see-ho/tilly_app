@@ -13,7 +13,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -209,7 +210,7 @@ private fun TimePickerDialog(
             )
         },
         text = {
-            TimeInput(state = timePickerState)
+            TimePicker(state = timePickerState)
         },
         confirmButton = {
             Text(

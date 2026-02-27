@@ -162,6 +162,7 @@ fun HomeContent(
             }
 
             is HomeUiState.Error -> {
+                // TODO 에러 상태: TIL이 없을 때와 비슷하게 처리하거나 별도 UI 표시
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

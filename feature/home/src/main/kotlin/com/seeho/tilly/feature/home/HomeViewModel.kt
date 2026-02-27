@@ -25,8 +25,6 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import com.seeho.tilly.core.common.util.DateUtils
-import java.time.LocalDate
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -84,20 +82,6 @@ class HomeViewModel @Inject constructor(
             initialValue = HomeUiState.Loading,
         )
 
-    /** 오늘 작성한 TIL의 ID (없으면 null) — FAB 상태 전환에 사용 */
-    val todayTilId: StateFlow<Long?> = getAllTilsUseCase()
-        .map { tils ->
-            val today = LocalDate.now()
-            tils.firstOrNull { til ->
-                DateUtils.timestampToLocalDate(til.createdAt) == today
-            }?.id
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = null,
-        )
-
     // 장착 중인 아이템 (카테고리 → 아이템ID)
     val equippedItems: StateFlow<Map<ItemCategory, String>> = getShopItemsUseCase.getEquippedItems()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
@@ -127,8 +111,8 @@ class HomeViewModel @Inject constructor(
                 deleteTilUseCase(id)
                 dismissDeleteDialog()
             } catch (e: Exception) {
+                // TODO 삭제 실패
                 e.printStackTrace()
-                dismissDeleteDialog()
             }
         }
     }
