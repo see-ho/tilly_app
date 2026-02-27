@@ -3,6 +3,7 @@ package com.seeho.tilly.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.seeho.tilly.core.common.notification.NotificationScheduler
 import com.seeho.tilly.core.datastore.NotificationPreferences
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,6 +49,8 @@ class BootReceiver : BroadcastReceiver() {
                         minute = settings.planMinute,
                     )
                 }
+            } catch (e: Exception) {
+                Log.e("BootReceiver", "Failed to restore notification schedule", e)
             } finally {
                 pendingResult.finish()
             }

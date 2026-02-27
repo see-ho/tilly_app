@@ -3,6 +3,7 @@ package com.seeho.tilly.core.common.notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -96,8 +97,9 @@ class NotificationHelper @Inject constructor(
         try {
             NotificationManagerCompat.from(context)
                 .notify(NOTIFICATION_ID_REMINDER, builder.build())
-        } catch (_: SecurityException) {
+        } catch (e: SecurityException) {
             // POST_NOTIFICATIONS 권한 미부여 시 무시
+            Log.w("NotificationHelper", "POST_NOTIFICATIONS permission not granted", e)
         }
     }
 
@@ -120,8 +122,9 @@ class NotificationHelper @Inject constructor(
         try {
             NotificationManagerCompat.from(context)
                 .notify(NOTIFICATION_ID_PLAN, builder.build())
-        } catch (_: SecurityException) {
+        } catch (e: SecurityException) {
             // POST_NOTIFICATIONS 권한 미부여 시 무시
+            Log.w("NotificationHelper", "POST_NOTIFICATIONS permission not granted", e)
         }
     }
 }

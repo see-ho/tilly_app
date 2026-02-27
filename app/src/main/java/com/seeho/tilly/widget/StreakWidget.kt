@@ -1,6 +1,7 @@
 package com.seeho.tilly.widget
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -127,6 +128,7 @@ class StreakWidget : GlanceAppWidget() {
             val coinEntity = entryPoint.coinDao().getUserCoin().firstOrNull()
             coinEntity?.streakCount ?: 0
         } catch (e: Exception) {
+            Log.w("StreakWidget", "Failed to get streak count", e)
             0
         }
     }
