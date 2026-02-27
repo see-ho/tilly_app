@@ -59,9 +59,8 @@ class NotificationHelper @Inject constructor(
     }
 
     private fun getTillyBitmap(): android.graphics.Bitmap? = try {
-        val resId = context.resources.getIdentifier("ic_tilly", "drawable", context.packageName)
         if (tillyIconRes != 0) {
-            val drawable = ContextCompat.getDrawable(context, resId)
+            val drawable = ContextCompat.getDrawable(context, tillyIconRes)
             drawable?.let {
                 val bitmap = android.graphics.Bitmap.createBitmap(
                     it.intrinsicWidth.coerceAtLeast(1),
