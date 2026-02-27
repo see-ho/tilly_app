@@ -113,13 +113,13 @@ fun MyPageContent(
             .padding(horizontal = 16.dp),
     ) {
         // 1. 프로필 섹션
-        item {
-            ProfileSection(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-            )
-        }
+        // item {
+        //     ProfileSection(
+        //         modifier = Modifier
+        //             .fillMaxWidth()
+        //             .padding(top = 8.dp),
+        //     )
+        // }
 
         // 2. Weekly Check
         item {
