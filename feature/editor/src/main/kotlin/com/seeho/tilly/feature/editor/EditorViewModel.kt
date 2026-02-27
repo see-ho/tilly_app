@@ -25,6 +25,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
+import com.seeho.tilly.core.model.Difficulty
+import com.seeho.tilly.core.model.Emotion
 
 @HiltViewModel
 class EditorViewModel @Inject constructor(
@@ -169,20 +171,13 @@ class EditorViewModel @Inject constructor(
                 // 수정 모드이면 기존 createdAt 사용, 없으면 현재 시간
                 val createdAt = state.createdAt ?: System.currentTimeMillis()
 
-                val til = Til(
-                    id = tilId ?: 0L,
-                    title = state.title,
-                    learned = state.todayLearning,
-                    difficulty = state.difficulties.ifBlank { null },
-                    tomorrow = state.tomorrowPlan.ifBlank { null },
-                    // 생성 모드: AI 분석 결과 사용 / 수정 모드: 기존 분석 결과 보존
+                val til = buildTilFromState(
+                    state = state,
                     tags = analysisResult?.tags ?: state.existingTags,
                     emotion = analysisResult?.emotion ?: state.existingEmotion,
                     emotionScore = analysisResult?.emotionScore ?: state.existingEmotionScore,
                     difficultyLevel = analysisResult?.difficultyLevel ?: state.existingDifficultyLevel,
                     feedback = analysisResult?.feedback ?: state.existingFeedback,
-                    createdAt = createdAt,
-                    updatedAt = if (tilId != null) System.currentTimeMillis() else null,
                 )
 
                 val savedId = if (tilId != null) {
@@ -265,19 +260,14 @@ class EditorViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
             try {
-                val til = Til(
-                    id = 0L,
-                    title = state.title,
-                    learned = state.todayLearning,
-                    difficulty = state.difficulties.ifBlank { null },
-                    tomorrow = state.tomorrowPlan.ifBlank { null },
+                val til = buildTilFromState(
+                    state = state,
                     // AI 분석 결과 없음 (오프라인)
                     tags = emptyList(),
                     emotion = null,
                     emotionScore = null,
                     difficultyLevel = null,
                     feedback = null,
-                    createdAt = System.currentTimeMillis(),
                 )
 
                 val savedId = saveTilUseCase(til)
@@ -293,9 +283,9 @@ class EditorViewModel @Inject constructor(
                         _coinRewardEvent.value = rewardResult
                         return@launch
                     }
-                } catch (_: Exception) {
+                } catch (e: Exception) {
                     // 코인 지급 실패해도 TIL 저장은 성공으로 처리
-                    // TODO
+                    e.printStackTrace()
                 }
 
                 _event.emit(EditorEvent.SaveSuccess(savedId))
@@ -378,19 +368,13 @@ class EditorViewModel @Inject constructor(
         val state = _uiState.value
         _uiState.update { it.copy(isSaving = true) }
         try {
-            val til = Til(
-                id = tilId ?: 0L,
-                title = state.title,
-                learned = state.todayLearning,
-                difficulty = state.difficulties.ifBlank { null },
-                tomorrow = state.tomorrowPlan.ifBlank { null },
+            val til = buildTilFromState(
+                state = state,
                 tags = state.existingTags,
                 emotion = state.existingEmotion,
                 emotionScore = state.existingEmotionScore,
                 difficultyLevel = state.existingDifficultyLevel,
                 feedback = state.existingFeedback,
-                createdAt = state.createdAt ?: System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis(),
             )
             if (tilId != null) {
                 updateTilUseCase(til)
@@ -406,4 +390,29 @@ class EditorViewModel @Inject constructor(
             _uiState.update { it.copy(isSaving = false) }
         }
     }
+
+    /**
+     * 현재 UI 상태로부터 Til 객체를 생성하는 헬퍼 함수
+     */
+    private fun buildTilFromState(
+        state: EditorUiState,
+        tags: List<String> = state.existingTags,
+        emotion: Emotion? = state.existingEmotion,
+        emotionScore: Int? = state.existingEmotionScore,
+        difficultyLevel: Difficulty? = state.existingDifficultyLevel,
+        feedback: String? = state.existingFeedback,
+    ): Til = Til(
+        id = tilId ?: 0L,
+        title = state.title,
+        learned = state.todayLearning,
+        difficulty = state.difficulties.ifBlank { null },
+        tomorrow = state.tomorrowPlan.ifBlank { null },
+        tags = tags,
+        emotion = emotion,
+        emotionScore = emotionScore,
+        difficultyLevel = difficultyLevel,
+        feedback = feedback,
+        createdAt = state.createdAt ?: System.currentTimeMillis(),
+        updatedAt = if (tilId != null) System.currentTimeMillis() else null,
+    )
 }

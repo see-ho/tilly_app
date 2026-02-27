@@ -1,5 +1,8 @@
 package com.seeho.tilly.feature.editor
 
+import com.seeho.tilly.core.model.Difficulty
+import com.seeho.tilly.core.model.Emotion
+
 /**
  * Editor 화면의 UI 상태
  */
@@ -15,9 +18,9 @@ data class EditorUiState(
     val createdAt: Long? = null,         // 기존 생성일시 (수정 모드용)
     // 기존 AI 분석 결과 캐싱 (수정 모드에서 보존용)
     val existingTags: List<String> = emptyList(),
-    val existingEmotion: com.seeho.tilly.core.model.Emotion? = null,
+    val existingEmotion: Emotion? = null,
     val existingEmotionScore: Int? = null,
-    val existingDifficultyLevel: com.seeho.tilly.core.model.Difficulty? = null,
+    val existingDifficultyLevel: Difficulty? = null,
     val existingFeedback: String? = null,
     // 분석 횟수 및 코인 관련
     val remainingFreeAnalysis: Int = 3,  // 남은 무료 분석 횟수
